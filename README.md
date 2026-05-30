@@ -320,18 +320,23 @@ Proof-not-press: READY. All tasks have testable checks.
 ## Architecture
 
 ```mermaid
-flowchart TD
-  input[Workplace input<br/>meetings, ERP, data, governance, PowerPoint]
-  codec[Satire Codec<br/>reduce or induce controlled tone]
-  banalizer[Banalizer<br/>removes ceremonial fog]
-  erp[ERP Archaeologist<br/>finds the cursed field]
-  relations[Datapoint Relator<br/>connects suspicious facts]
-  weather[Emotional Weather<br/>hypotheses, not mind-reading]
-  gravity[Enterprise Gravity<br/>partner-safe platform reality]
-  runtime[Finnish Absurdism Runtime<br/>deadpan escalation engine]
-  output[Antti Output<br/>useful, dry, operational]
-
-  input --> codec --> banalizer --> erp --> relations --> weather --> gravity --> runtime --> output
+graph TD
+    subgraph "Input"
+        input[Workplace input — meetings · ERP · governance · PowerPoint]
+    end
+    subgraph "Transformation"
+        codec[Satire Codec — reduce or induce controlled tone]
+        banalizer[Banalizer — removes ceremonial fog]
+    end
+    subgraph "Analysis"
+        erp[ERP Archaeologist — finds the cursed field]
+        weather[Emotional Weather — hypotheses, not mind-reading]
+        gravity[Enterprise Gravity — partner-safe platform reality]
+    end
+    subgraph "Output"
+        runtime[Finnish Absurdism Runtime — deadpan escalation]
+        out[Antti Output — useful, dry, operational]
+    end
 ```
 
 Antti Stack is built as real tooling first and satire second.
