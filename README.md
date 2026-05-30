@@ -261,15 +261,34 @@ antti archaeology "ZZ_SUPP_REF_OLD2 field has wrong values since 2019"
 ```
 
 ```text
-The data is not wrong.
+Detected: SAP · field: ZZ_SUPP_REF_OLD2 · year reference: 2019.
 
-It is historically correct in a way the current process no longer admits.
+The data is not wrong. It is historically correct in a way the current process no longer admits.
 
-First clue: field archaeology: ZZ_SUPP_REF_OLD2. Field-like tokens suggest undocumented semantics hiding in plain sight.
+Where this field is defined:
+  SE11 → enter field name (ZZ_SUPP_REF_OLD2) → Display
+  SE11 → check which table contains this field — look at the Where-Used list
+  TADIR → filter by object type TABD to find the development package it belongs to
 
-Hypothesis: Check whether 2019 and ZZ_SUPP_REF_OLD2 are linked by an old mapping, merged master record, or reporting shortcut that became policy.
+What writes to this field:
+  SE11 → field name → Where-Used List → look for ABAP programs, BAPIs, user exits
+  SE80 → search for field name in repository → shows all code that references it
+  Check for Z transactions (SE93) or enhancement spots (SE18) that populate it
 
-Somewhere between a deprecated field, an undocumented mapping, and a heroic spreadsheet, ZZ_SUPP_REF_OLD2 field has wrong values since 2019 became architecture.
+What changed around 2019:
+  CDHDR / CDPOS — change document tables. Filter by object class and date range.
+  SE16 → CDHDR → filter UDATE (change date) for the year range
+  Check transport log (SE09/SE10) for changes released in that year
+
+Who owns this:
+  SE10 — find transports from that period, check the developer name
+  If it is a Z field: the team that developed it is responsible. Find the package in SE11.
+
+To narrow this down, answer:
+  - Which SAP module? MM (materials/vendors), FI (finance/invoices), SD (sales/customers)?
+  - S/4HANA or older SAP ECC? Transaction codes differ.
+  - Is ZZ_SUPP_REF_OLD2 in a standard SAP table or a completely custom Z table?
+  - Is there a Z transaction or program that populates this field, or is it set by an interface?
 ```
 
 ---

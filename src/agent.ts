@@ -8,6 +8,7 @@ import {
 import { compress } from "./compress.js";
 import { analyzeEmotionalWeather, type EmotionalWeatherHypothesis } from "./emotion.js";
 import { analyzeEnterpriseGravity, type EnterpriseGravityFinding } from "./enterprise-gravity.js";
+import { buildArchaeologyGuide } from "./erp-guide.js";
 import { extractMemeContext, selectMemeTemplate, type MemeTemplate } from "./meme.js";
 import { plan } from "./plan.js";
 import { formatSpec, generateSpec } from "./spec.js";
@@ -422,13 +423,49 @@ function buildArchitectureArtifact(input: string): ArchitectureArtifact {
 }
 
 function renderArchaeology(input: string, analysis: AgentAnalysis): string {
-  const finding = analysis.erpFindings[0];
-  const clue = finding ? `\n\nFirst clue: ${finding.signal}. ${finding.reason}` : "";
-  const relation = analysis.relations[0]
-    ? `\n\nHypothesis: ${analysis.relations[0].hypothesis}`
-    : "";
+  const guide = buildArchaeologyGuide(input);
+  const lines: string[] = [];
 
-  return `The data is not wrong.\n\nIt is historically correct in a way the current process no longer admits.${clue}${relation}\n\nSomewhere between a deprecated field, an undocumented mapping, and a heroic spreadsheet, ${plainObject(input)} became architecture.`;
+  // What was detected
+  const detected: string[] = [];
+  if (guide.detectedSystem) detected.push(guide.detectedSystem);
+  if (guide.detectedModule) detected.push(guide.detectedModule);
+  if (guide.detectedFields.length > 0) detected.push(`field${guide.detectedFields.length > 1 ? "s" : ""}: ${guide.detectedFields.join(", ")}`);
+  if (guide.detectedObjects.length > 0) detected.push(guide.detectedObjects.join(", "));
+  if (guide.detectedYears.length > 0) detected.push(`year reference: ${guide.detectedYears.join(", ")}`);
+
+  lines.push(`Detected: ${detected.length > 0 ? detected.join(" · ") : "no specific system or field — see questions below"}.`);
+  lines.push("");
+  lines.push("The data is not wrong. It is historically correct in a way the current process no longer admits.");
+
+  // Navigation
+  if (guide.navigationSteps.length > 0) {
+    lines.push("");
+    for (const step of guide.navigationSteps) {
+      lines.push(step.purpose + ":");
+      for (const path of step.paths) {
+        lines.push(`  ${path}`);
+      }
+    }
+  }
+
+  // Follow-up questions
+  if (guide.followUpQuestions.length > 0) {
+    lines.push("");
+    lines.push("To narrow this down, answer:");
+    for (const q of guide.followUpQuestions) {
+      lines.push(`  - ${q}`);
+    }
+  }
+
+  // Dry close — only if there's something to anchor it to
+  const finding = analysis.erpFindings[0];
+  if (finding) {
+    lines.push("");
+    lines.push(`Somewhere between a deprecated field, an undocumented mapping, and a heroic spreadsheet, ${plainObject(input)} became architecture.`);
+  }
+
+  return lines.join("\n");
 }
 
 function renderGovernance(governance: GovernanceArtifact): string {
