@@ -350,8 +350,7 @@ graph TD
         gravity[Enterprise Gravity — partner-safe platform reality]
     end
     subgraph "Output"
-        runtime[Finnish Absurdism Runtime — deadpan escalation]
-        out[Antti Output — useful, dry, operational]
+        out[Antti Output — dry, operational, Finnish]
     end
 ```
 
