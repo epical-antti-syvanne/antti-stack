@@ -46,11 +46,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ahiltu/antti-stack.git"
+    "url": "git+https://github.com/epical-antti-syvanne/antti-stack.git"
   },
-  "homepage": "https://github.com/ahiltu/antti-stack#readme",
+  "homepage": "https://github.com/epical-antti-syvanne/antti-stack#readme",
   "bugs": {
-    "url": "https://github.com/ahiltu/antti-stack/issues"
+    "url": "https://github.com/epical-antti-syvanne/antti-stack/issues"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
