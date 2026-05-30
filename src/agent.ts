@@ -422,47 +422,25 @@ function buildArchitectureArtifact(input: string): ArchitectureArtifact {
   };
 }
 
-function renderArchaeology(input: string, analysis: AgentAnalysis): string {
+function renderArchaeology(input: string, _analysis: AgentAnalysis): string {
   const guide = buildArchaeologyGuide(input);
   const lines: string[] = [];
 
-  // What was detected
-  const detected: string[] = [];
-  if (guide.detectedSystem) detected.push(guide.detectedSystem);
-  if (guide.detectedModule) detected.push(guide.detectedModule);
-  if (guide.detectedFields.length > 0) detected.push(`field${guide.detectedFields.length > 1 ? "s" : ""}: ${guide.detectedFields.join(", ")}`);
-  if (guide.detectedObjects.length > 0) detected.push(guide.detectedObjects.join(", "));
-  if (guide.detectedYears.length > 0) detected.push(`year reference: ${guide.detectedYears.join(", ")}`);
-
-  lines.push(`Detected: ${detected.length > 0 ? detected.join(" · ") : "no specific system or field — see questions below"}.`);
+  lines.push(`Detected: ${guide.summary}.`);
   lines.push("");
   lines.push("The data is not wrong. It is historically correct in a way the current process no longer admits.");
+  lines.push("");
+  lines.push("Work through these phases. Each phase answer narrows what to look at next.");
 
-  // Navigation
-  if (guide.navigationSteps.length > 0) {
+  for (const phase of guide.phases) {
     lines.push("");
-    for (const step of guide.navigationSteps) {
-      lines.push(step.purpose + ":");
-      for (const path of step.paths) {
-        lines.push(`  ${path}`);
-      }
-    }
-  }
-
-  // Follow-up questions
-  if (guide.followUpQuestions.length > 0) {
-    lines.push("");
-    lines.push("To narrow this down, answer:");
-    for (const q of guide.followUpQuestions) {
+    lines.push(phase.name);
+    for (const q of phase.questions) {
       lines.push(`  - ${q}`);
     }
-  }
-
-  // Dry close — only if there's something to anchor it to
-  const finding = analysis.erpFindings[0];
-  if (finding) {
-    lines.push("");
-    lines.push(`Somewhere between a deprecated field, an undocumented mapping, and a heroic spreadsheet, ${plainObject(input)} became architecture.`);
+    if (phase.systemHint) {
+      lines.push(`  (${phase.systemHint})`);
+    }
   }
 
   return lines.join("\n");
