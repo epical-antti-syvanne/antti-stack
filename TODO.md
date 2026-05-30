@@ -118,7 +118,7 @@ Antti Stack adaptations:
 - [x] Add memory commands that behave like Cavemem but store corporate absurdity, decisions, reviewer notes, and known enterprise gravity patterns.
 - [x] Add a Reduced Ritual Kernel for common operations: diagnose, compress, plan, remember, recall, verify, package.
 - [x] Add proof artifacts for every public claim: test, fixture, example, schema, or reproducible CLI command.
-- [ ] Keep each layer independently useful: compression without memory, memory without MCP, MCP without dashboard, dashboard only if reality becomes unavoidable.
+- [x] Keep each layer independently useful: compression without memory, memory without MCP, MCP without dashboard, dashboard only if reality becomes unavoidable.
 - [x] Make the README explicitly mirror the stack story: agent → MCP → tools, CLI as local support surface.
 
 Acceptance:
@@ -384,7 +384,7 @@ Recommended next sprint:
 ### Remaining
 - [x] Delta spec support: mark requirements as ADDED/MODIFIED/REMOVED relative to a prior spec — `antti spec <input> --compare prev.json`, MCP `generate_spec` with `previous_spec` param
 - [x] Export to `.md` file via `antti spec <input> > spec.md` (works via shell redirection)
-- [ ] MCP `generate_spec` integration test with M365/Foundry adapters
+- MCP `generate_spec` integration test with M365/Foundry adapters — tracked in Phase 7.
 
 ## Feature: imgflip Meme Mode
 
@@ -423,9 +423,9 @@ Recommended next sprint:
 
 ### Remaining
 - [x] Add `IMGFLIP_USERNAME` / `IMGFLIP_PASSWORD` to `.env.example` with instructions.
-- [ ] Integration test with real credentials (manual only; not in CI).
 - [x] Add meme suggestion to `plan` output when a high-ceremony goal is detected.
 - [x] Add meme suggestion to `antti memory list` output for records with known gravity signals.
+- imgflip integration test with real credentials — manual only, not in CI. Tracked in Deferred.
 
 ### Acceptance criteria (done)
 - `antti meme "we track supplier data in Excel" --no-url` prints template name, text0, text1.
@@ -443,7 +443,8 @@ Recommended next sprint:
 - [ ] Browser dashboard — deferred until local model proven. Same reason.
 - [ ] Provider-backed LLM generation — all current tools are deterministic. LLM generation deferred until a specific tool requires it and cannot be deterministic.
 - [ ] Multi-agent reviewer/builder/investigator loop — deferred. Current architecture: one agent calls MCP tools. Multi-agent orchestration is the agent's job, not Antti Stack's.
-- [ ] npm publish — package exists on GitHub. Name `antti-stack` not yet claimed on npm.
+- [ ] npm publish — package exists on GitHub. Name `antti-stack` not yet claimed on npm. Add `NPM_TOKEN` secret to GitHub repo to trigger the release workflow on the existing `v0.1.0` tag.
+- [ ] imgflip integration test with real credentials — manual only, not in CI. Set `IMGFLIP_USERNAME` and `IMGFLIP_PASSWORD` and run `antti meme "any input"` to verify URL generation.
 - [ ] Final website deployment — `website/` project targets Domainhotelli.fi. Deferred until tooling is stable enough to deserve a public front door.
 - JSONL memory is permanent. Not SQLite.
 - MCP is done: stdio + HTTP Streamable. Both use the same 14 tools.
