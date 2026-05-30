@@ -23,30 +23,40 @@ This is not a contradiction. It is an operating model.
 
 ## What is Antti Stack?
 
-Antti Stack is a deliberately over-engineered ecosystem for generating dry, Finnish, technically credible workplace absurdism.
+A set of tools for Claude, ChatGPT, GitHub Copilot, and local models to use when working with enterprise workplace material.
 
-It turns ordinary corporate material - ERP migrations, master data issues, Azure certifications, governance rituals, architecture diagrams, stakeholder alignment, and suspicious Excel files - into content that is still professionally usable, but no longer spiritually corrosive.
+The primary interface is MCP. The agent calls the tools. The CLI is there so a human can run the same tools locally to test, debug, or operate without an agent.
+
+The tools compress corporate language, diagnose ERP and data problems, detect emotional weather and platform friction, generate plans with testable criteria, store compressed context in local memory, and anchor the whole thing with a meme.
 
 It is not a joke generator.
 
-It is a **banality compression platform**.
+It is a **banality compression platform** for agents and the humans who work with them.
 
-Because enterprise work already contains the comedy.  
-The stack merely indexes it.
+Because enterprise work already contains the comedy. The stack merely indexes it.
 
 ---
 
 ## What is in the box
 
-Antti Stack is a TypeScript CLI and MCP toolkit. No cloud service required. No hosting required. No transformation program required.
+No cloud service required. No hosting required. No transformation program required.
 
-What is actually here:
+### Primary interface — MCP
+
+The agent calls these. Same 14 tools on both transports.
+
+| Transport | Binary | Clients |
+|-----------|--------|---------|
+| stdio | `antti-mcp` | Claude Desktop, Claude Code, GitHub Copilot |
+| HTTP (Streamable) | `antti-mcp-http` | ChatGPT, remote agents, any HTTP MCP client |
+
+### Support interface — CLI
+
+A human runs these locally. Same underlying functions as MCP.
 
 | Component | File | What it does |
 |-----------|------|-------------|
 | CLI | `antti` | 10+ modes: diagnose, compress, plan, spec, meme, memory, codec |
-| MCP stdio | `antti-mcp` | 14 tools for Claude Desktop, Claude Code, GitHub Copilot |
-| MCP HTTP | `antti-mcp-http` | Same 14 tools over HTTP for ChatGPT and remote agents |
 | Satire Codec | `src/codec.ts` | Bidirectional: reduce corporate fog to meaning, induce controlled tone |
 | Token Austerity Office | `src/compress.ts` | Strips ceremony. Fewer tokens, same meaning. Reports what survived and what was removed. |
 | Emotional Weather | `src/emotion.ts` | Business-emotion hypotheses. Never claims certainty. |
@@ -194,7 +204,9 @@ Still. Progress has been claimed.
 
 ---
 
-## Agent Modes
+## CLI Commands
+
+These are the same operations exposed via MCP. An agent calls them through the MCP tools. A human calls them here. Same functions, different surface.
 
 ### `post`
 Generate LinkedIn posts that sound professional, but not infected.
@@ -385,29 +397,40 @@ Proof-not-press: READY. All 7 tasks have testable checks.
 ## Architecture
 
 ```mermaid
-graph TD
-    subgraph "Input"
-        input[Workplace input — meetings · ERP · governance · PowerPoint]
+graph TB
+    subgraph "Agents — primary callers"
+        claude[Claude]
+        chatgpt[ChatGPT]
+        ghcp[GitHub Copilot]
+        local[Local model]
     end
-    subgraph "Transformation"
-        codec[Satire Codec — reduce or induce controlled tone]
-        banalizer[Banalizer — removes ceremonial fog]
+    subgraph "MCP interface — 14 tools"
+        stdio[antti-mcp · stdio]
+        http[antti-mcp-http · HTTP]
     end
-    subgraph "Analysis"
-        erp[ERP Archaeologist — finds the cursed field]
-        weather[Emotional Weather — hypotheses, not mind-reading]
-        gravity[Enterprise Gravity — partner-safe platform reality]
+    subgraph "Tools — shared functions"
+        compress[compress · codec · diagnose]
+        plan[plan · spec · memory]
+        meme[meme · emotional_weather · enterprise_gravity]
     end
-    subgraph "Output"
-        out[Antti Output — dry, operational, Finnish]
+    subgraph "CLI — local support"
+        cli[antti · same functions · human-operated]
     end
+
+    claude ~~~ stdio
+    chatgpt ~~~ http
+    ghcp ~~~ stdio
+    local ~~~ http
+    stdio ~~~ compress
+    http ~~~ compress
+    compress ~~~ plan
+    plan ~~~ meme
+    cli ~~~ compress
 ```
 
-Antti Stack is built as real tooling first and satire second.
+The agent is the primary user. Claude, ChatGPT, GitHub Copilot, or a local model calls the MCP tools directly. The CLI runs the same functions locally — for testing, debugging, and operating without an agent in the loop.
 
-Each tool works independently. The codec reduces styled corporate text into plain operational meaning, or induces controlled Antti-style satire back into the text. The planner generates tasks. The memory stores compressed context. None requires the others. This is useful because AI can create decent work products, but it cannot reliably read human emotions. Business still runs on emotions: trust, fear, status, fatigue, budget anxiety, and whether anyone wants to say yes in public.
-
-So the stack treats emotions as hypotheses, platform friction as enterprise gravity, and jokes as a style layer with tests.
+Each tool works independently. None requires the others. None requires a cloud service.
 
 ---
 
