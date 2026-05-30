@@ -341,7 +341,7 @@ graph TD
 
 Antti Stack is built as real tooling first and satire second.
 
-The toolchain can reduce styled corporate text into plain operational meaning, or induce controlled Antti-style satire back into the text. This is useful because AI can create decent work products, but it cannot reliably read human emotions. Business still runs on emotions: trust, fear, status, fatigue, budget anxiety, and whether anyone wants to say yes in public.
+Each tool works independently. The codec reduces styled corporate text into plain operational meaning, or induces controlled Antti-style satire back into the text. The planner generates tasks. The memory stores compressed context. None requires the others. This is useful because AI can create decent work products, but it cannot reliably read human emotions. Business still runs on emotions: trust, fear, status, fatigue, budget anxiety, and whether anyone wants to say yes in public.
 
 So the stack treats emotions as hypotheses, platform friction as enterprise gravity, and jokes as a style layer with tests.
 
@@ -377,7 +377,7 @@ graph TD
 |-------|---------|--------------|
 | 01 Primitive | `antti compress` | Strips ceremony. Reports reduction, what was removed, meme suggestion at ≥20% reduction. |
 | 02 Analysis | `antti --mode diagnose` | Surfaces ERP signals, emotional weather hypotheses, enterprise gravity, meme anchor. |
-| 03 Spec | `antti spec` | Runs full pipeline → OpenSpec Markdown. Requirements derived from satirical signals. |
+| 03 Spec | `antti spec` | Produces an OpenSpec Markdown document. Requirements derived from satirical signals. |
 | 04 Workflow | `antti plan` | Tasks with testable checks, acceptance criteria, proof-not-press gate. |
 | 05 Memory | `antti memory` / MCP `memory_add` | Agent-agnostic context compressor. Any agent pushes verbose text in; ceremony is stripped before storage; lean context comes out. Keeps context windows clean. |
 | 06 Adapters | MCP / M365 / Foundry | Same logic, 13 tools, different surface. |
