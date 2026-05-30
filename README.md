@@ -279,13 +279,13 @@ antti compress "We are thrilled to announce a transformational journey to unlock
 ```
 
 ```text
-We are announcing a project to make useful.
+We are announcing a project.
 
 Token Austerity Office report:
-Original: 16 words. Compressed: 9 words. Reduction: 44%.
-Ceremony removed: 3 pattern(s): thrilled to announce (emotion theatre); transformational journey (transformation fog); unlock value (corporate fog).
+Original: 13 words. Compressed: 5 words. Reduction: 62%.
+Ceremony removed: 4 pattern(s): going forward (direction theatre); unlock value (corporate fog); transformational journey (transformation fog); and more.
 Meaning: survived compression.
-Verdict: 44% removed. The original had significant ceremony.
+Verdict: 62% removed. The original had significant ceremony.
 ```
 
 ---

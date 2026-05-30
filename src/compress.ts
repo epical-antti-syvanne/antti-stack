@@ -37,7 +37,7 @@ const CEREMONY_CORPUS: ReadonlyArray<{ phrase: string; replacement: string; labe
   { phrase: "leverage", replacement: "use", label: "verb inflation" },
   { phrase: "synergies", replacement: "coordination", label: "management fog" },
   { phrase: "synergy", replacement: "coordination", label: "management fog" },
-  { phrase: "unlock value", replacement: "make useful", label: "corporate fog" },
+  { phrase: "unlock value", replacement: "", label: "corporate fog" },
   { phrase: "transformational journey", replacement: "project", label: "transformation fog" },
   { phrase: "thrilled to announce", replacement: "announcing", label: "emotion theatre" },
   { phrase: "strategic enabler", replacement: "requirement", label: "strategy fog" },
@@ -124,6 +124,8 @@ function applyCompression(input: string): { text: string; removedCeremony: strin
 function cleanupArtifacts(text: string): string {
   return text
     .replace(/\s{2,}/g, " ")
+    .replace(/\bto\s+([,.;:!?])/g, "$1")   // dangling "to" before punctuation
+    .replace(/\bto\s*$/g, "")               // dangling "to" at end of sentence
     .replace(/\s+([,.;:!?])/g, "$1")
     .replace(/([,.;:!?])\1+/g, "$1")
     .replace(/\.\s*\./g, ".")
