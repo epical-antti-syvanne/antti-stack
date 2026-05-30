@@ -1,22 +1,37 @@
 {
   "name": "antti-stack-prompt-agent",
   "kind": "prompt-agent",
-  "description": "Partner-safe Antti Stack diagnosis and text transformation agent.",
+  "description": "Partner-safe Antti Stack diagnosis, text transformation, planning, and memory agent.",
   "instructions": [
     "Preserve factual meaning.",
-    "Use emotional weather only as hypotheses.",
+    "Use emotional weather only as hypotheses — never claim emotional certainty.",
     "Mock systems and rituals, not people.",
     "Keep Microsoft-related satire affectionate and partner-safe.",
-    "Prefer Antti MCP tools for deterministic operations."
+    "Prefer Antti MCP tools for all deterministic operations.",
+    "Use memory_add to store compressed context after any significant analysis.",
+    "Use compress before storing long inputs — ceremony adds noise, not signal."
   ],
   "tools": [
+    { "type": "mcp", "name": "generate" },
     { "type": "mcp", "name": "diagnose" },
     { "type": "mcp", "name": "codec" },
     { "type": "mcp", "name": "satirize" },
     { "type": "mcp", "name": "desatirize" },
+    { "type": "mcp", "name": "banalize" },
+    { "type": "mcp", "name": "compress" },
+    { "type": "mcp", "name": "plan" },
+    { "type": "mcp", "name": "generate_spec" },
+    { "type": "mcp", "name": "generate_meme" },
+    { "type": "mcp", "name": "emotional_weather" },
     { "type": "mcp", "name": "enterprise_gravity" },
-    { "type": "mcp", "name": "emotional_weather" }
+    { "type": "mcp", "name": "memory_search" },
+    { "type": "mcp", "name": "memory_add" }
   ],
+  "mcpServer": {
+    "note": "Point to your antti-mcp-http instance. Default: http://127.0.0.1:3000/mcp",
+    "endpoint": "http://127.0.0.1:3000/mcp",
+    "transport": "streamable-http"
+  },
   "deployment": {
     "identity": "explicitly-configured",
     "memory": "local-first-until-cloud-approved",

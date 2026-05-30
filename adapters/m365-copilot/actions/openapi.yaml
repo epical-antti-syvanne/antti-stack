@@ -1,15 +1,56 @@
-﻿openapi: 3.1.0
+openapi: 3.1.0
 info:
   title: Antti Stack Actions
   version: 0.1.0
-  description: Placeholder OpenAPI contract for future Microsoft 365 Copilot actions.
+  description: >
+    OpenAPI contract for Microsoft 365 Copilot declarative agent actions.
+
+    Deployment note: replace the server URL with the address of your deployed
+    REST API wrapper, or use the MCP connector path with antti-mcp-http instead.
+    The MCP HTTP server (antti-mcp-http) exposes all 14 tools at /mcp using
+    the MCP Streamable HTTP protocol. The endpoints below mirror that contract
+    as REST for Copilot OpenAPI actions.
+
 servers:
-  - url: https://example.invalid/api
+  - url: https://your-deployment.example.com/api
+    description: Replace with your deployed endpoint.
+
 paths:
+  /generate:
+    post:
+      operationId: generate
+      summary: Generate Antti Stack output for a mode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [input]
+              properties:
+                mode:
+                  type: string
+                  enum: [post, comment, banalizer, romcom, archaeology, governance, architecture, diagnose, ideas, desatirize, satirize, codec, compress, plan]
+                  default: post
+                input:
+                  type: string
+                intensity:
+                  type: string
+                  enum: [safe, default, more-edge]
+                  default: default
+      responses:
+        "200":
+          description: AgentResponse JSON
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentResponse"
+
   /diagnose:
     post:
       operationId: diagnose
-      summary: Diagnose workplace text
+      summary: Run the full diagnostic stack
+      description: Fog, ERP, emotional weather, enterprise gravity, governance, architecture.
       requestBody:
         required: true
         content:
@@ -30,11 +71,64 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/AgentResponse"
+
+  /satirize:
+    post:
+      operationId: satirize
+      summary: Apply controlled Antti-style tone to plain operational meaning
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [input]
+              properties:
+                input:
+                  type: string
+                intensity:
+                  type: string
+                  enum: [safe, default, more-edge]
+                  default: default
+      responses:
+        "200":
+          description: AgentResponse JSON
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentResponse"
+
+  /desatirize:
+    post:
+      operationId: desatirize
+      summary: Normalize corporate or satirical text to plain operational meaning
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [input]
+              properties:
+                input:
+                  type: string
+                intensity:
+                  type: string
+                  enum: [safe, default, more-edge]
+                  default: default
+      responses:
+        "200":
+          description: AgentResponse JSON
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentResponse"
+
   /codec:
     post:
       operationId: codec
-      summary: Run Satire Codec
+      summary: Run the Satire Codec bidirectional transformation
       requestBody:
         required: true
         content:
@@ -48,10 +142,301 @@ paths:
                   enum: [reduce, induce]
                 input:
                   type: string
+                intensity:
+                  type: string
+                  enum: [safe, default, more-edge]
+                  default: default
       responses:
         "200":
-          description: TransformTextResult JSON
+          description: CodecResult JSON
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CodecResult"
+
+  /banalize:
+    post:
+      operationId: banalize
+      summary: Reduce corporate fog to plain operational meaning
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [input]
+              properties:
+                input:
+                  type: string
+      responses:
+        "200":
+          description: Plain text output
           content:
             application/json:
               schema:
                 type: object
+                properties:
+                  output:
+                    type: string
+
+  /compress:
+    post:
+      operationId: compress
+      summary: Strip ceremony and report word count reduction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [input]
+              properties:
+                input:
+                  type: string
+      responses:
+        "200":
+          description: CompressResult JSON
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompressResult"
+
+  /emotional_weather:
+    post:
+      operationId: emotional_weather
+      summary: Return business-emotion hypotheses
+      description: Does not claim to read minds. Returns hypotheses with confidence and evidence.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [input]
+              properties:
+                input:
+                  type: string
+      responses:
+        "200":
+          description: EmotionalWeather array
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  emotionalWeather:
+                    type: array
+                    items:
+                      type: object
+
+  /enterprise_gravity:
+    post:
+      operationId: enterprise_gravity
+      summary: Return partner-safe platform/process gravity findings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [input]
+              properties:
+                input:
+                  type: string
+      responses:
+        "200":
+          description: EnterpriseGravity array
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enterpriseGravity:
+                    type: array
+                    items:
+                      type: object
+
+  /plan:
+    post:
+      operationId: plan
+      summary: Convert a vague enterprise ask into tasks with testable acceptance criteria
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [goal]
+              properties:
+                goal:
+                  type: string
+      responses:
+        "200":
+          description: PlanResult JSON
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /generate_spec:
+    post:
+      operationId: generate_spec
+      summary: Generate an OpenSpec document from enterprise input
+      description: Satire is the source of truth. Requirements are derived from satirical signal detection.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [input]
+              properties:
+                input:
+                  type: string
+                format:
+                  type: string
+                  enum: [markdown, json]
+                  default: markdown
+      responses:
+        "200":
+          description: OpenSpec markdown or JSON
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /generate_meme:
+    post:
+      operationId: generate_meme
+      summary: Select a workplace absurdity meme template and optionally generate a URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [input]
+              properties:
+                input:
+                  type: string
+                generate_url:
+                  type: boolean
+                  default: false
+      responses:
+        "200":
+          description: MemeResult JSON
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /memory_search:
+    post:
+      operationId: memory_search
+      summary: Search local JSONL memory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query:
+                  type: string
+                path:
+                  type: string
+                  default: .antti/memory.jsonl
+      responses:
+        "200":
+          description: MemoryRecord array
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /memory_add:
+    post:
+      operationId: memory_add
+      summary: Compress and store agent context
+      description: Agent-agnostic. Ceremony stripped before storage. Returns compression stats.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text:
+                  type: string
+                source:
+                  type: string
+                category:
+                  type: string
+                  enum: [corporate_fog, enterprise_gravity, emotional_weather, erp_archaeology, decision_fossils, satire_fixtures, reviewer_notes, general]
+                path:
+                  type: string
+                  default: .antti/memory.jsonl
+      responses:
+        "200":
+          description: ContextMemoryResult JSON
+          content:
+            application/json:
+              schema:
+                type: object
+
+components:
+  schemas:
+    AgentResponse:
+      type: object
+      properties:
+        mode:
+          type: string
+        output:
+          type: string
+        warnings:
+          type: array
+          items:
+            type: string
+
+    CodecResult:
+      type: object
+      properties:
+        direction:
+          type: string
+          enum: [reduce, induce]
+        input:
+          type: string
+        output:
+          type: string
+        riskLabels:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+
+    CompressResult:
+      type: object
+      properties:
+        original:
+          type: string
+        compressed:
+          type: string
+        originalWordCount:
+          type: integer
+        compressedWordCount:
+          type: integer
+        reductionPercent:
+          type: number
+        removedCeremony:
+          type: array
+          items:
+            type: string
+        meaningSurvived:
+          type: boolean
+        report:
+          type: string

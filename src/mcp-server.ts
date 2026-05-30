@@ -8,7 +8,7 @@ import { analyzeEnterpriseGravity } from "./enterprise-gravity.js";
 import { addContextMemory, searchMemory } from "./memory.js";
 import { generateMemeUrl } from "./meme.js";
 import { plan } from "./plan.js";
-import { formatSpec, generateSpec } from "./spec.js";
+import { compareSpecs, formatDeltaSpec, formatSpec, generateSpec, type OpenSpecDocument } from "./spec.js";
 
 const intensitySchema = z.enum(["safe", "default", "more-edge"]).default("default");
 const modeSchema = z.enum([
@@ -187,16 +187,24 @@ export function createAnttiMcpServer(): McpServer {
     "generate_spec",
     {
       title: "Generate an OpenSpec document",
-      description: "Runs the full Antti Stack pipeline on input — satire analysis, compression, plan — and produces an OpenSpec-format Markdown document. Satire is the source of truth; requirements are derived from satirical signal detection.",
+      description: "Runs the full Antti Stack pipeline on input — satire analysis, compression, plan — and produces an OpenSpec-format Markdown document. Satire is the source of truth; requirements are derived from satirical signal detection. Pass previous_spec (a prior OpenSpecDocument JSON) to get a delta showing ADDED/MODIFIED/REMOVED requirements.",
       inputSchema: {
         input: z.string().min(1),
-        format: z.enum(["markdown", "json"]).default("markdown")
+        format: z.enum(["markdown", "json"]).default("markdown"),
+        previous_spec: z.string().optional().describe("JSON string of a prior OpenSpecDocument for delta comparison")
       }
     },
-    ({ input, format }) => {
+    ({ input, format, previous_spec }) => {
       const result = generate({ mode: "diagnose", input, intensity: "default" });
       const planResult = plan(input);
       const doc = generateSpec(input, result.analysis, planResult.tasks, planResult.acceptanceCriteria);
+
+      if (previous_spec) {
+        const previous = JSON.parse(previous_spec) as OpenSpecDocument;
+        const delta = compareSpecs(previous, doc);
+        return jsonTool(format === "json" ? delta : { markdown: formatDeltaSpec(delta) });
+      }
+
       return jsonTool(format === "json" ? doc : { markdown: formatSpec(doc) });
     }
   );

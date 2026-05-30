@@ -208,6 +208,98 @@ export function formatSpec(doc: OpenSpecDocument): string {
   return lines.join("\n");
 }
 
+export type DeltaStatus = "ADDED" | "MODIFIED" | "REMOVED" | "UNCHANGED";
+
+export interface DeltaRequirement extends OpenSpecRequirement {
+  status: DeltaStatus;
+  previousStatement?: string;
+}
+
+export interface DeltaSpec {
+  current: OpenSpecDocument;
+  previous: OpenSpecDocument;
+  requirementDeltas: DeltaRequirement[];
+  addedSignals: string[];
+  removedSignals: string[];
+  summary: string;
+}
+
+export function compareSpecs(previous: OpenSpecDocument, current: OpenSpecDocument): DeltaSpec {
+  const prevBySignal = new Map(previous.requirements.map((r) => [r.derivedFrom, r]));
+  const currBySignal = new Map(current.requirements.map((r) => [r.derivedFrom, r]));
+
+  const requirementDeltas: DeltaRequirement[] = [];
+
+  for (const [signal, curr] of currBySignal) {
+    const prev = prevBySignal.get(signal);
+    if (!prev) {
+      requirementDeltas.push({ ...curr, status: "ADDED" });
+    } else if (prev.statement !== curr.statement) {
+      requirementDeltas.push({ ...curr, status: "MODIFIED", previousStatement: prev.statement });
+    } else {
+      requirementDeltas.push({ ...curr, status: "UNCHANGED" });
+    }
+  }
+
+  for (const [signal, prev] of prevBySignal) {
+    if (!currBySignal.has(signal)) {
+      requirementDeltas.push({ ...prev, status: "REMOVED" });
+    }
+  }
+
+  const addedSignals = current.derivedSignals.filter((s) => !previous.derivedSignals.includes(s));
+  const removedSignals = previous.derivedSignals.filter((s) => !current.derivedSignals.includes(s));
+
+  const added = requirementDeltas.filter((r) => r.status === "ADDED").length;
+  const removed = requirementDeltas.filter((r) => r.status === "REMOVED").length;
+  const modified = requirementDeltas.filter((r) => r.status === "MODIFIED").length;
+  const summary = `${added} added, ${modified} modified, ${removed} removed, ${requirementDeltas.length - added - removed - modified} unchanged`;
+
+  return { current, previous, requirementDeltas, addedSignals, removedSignals, summary };
+}
+
+export function formatDeltaSpec(delta: DeltaSpec): string {
+  const STATUS_PREFIX: Record<DeltaStatus, string> = {
+    ADDED: "+ ADDED",
+    REMOVED: "- REMOVED",
+    MODIFIED: "~ MODIFIED",
+    UNCHANGED: "  UNCHANGED"
+  };
+
+  const lines: string[] = [
+    `# Delta: ${delta.current.title}`,
+    "",
+    `_${delta.summary}_`,
+    ""
+  ];
+
+  if (delta.addedSignals.length > 0) {
+    lines.push(`**New signals detected:** ${delta.addedSignals.join(", ")}`);
+  }
+  if (delta.removedSignals.length > 0) {
+    lines.push(`**Signals no longer detected:** ${delta.removedSignals.join(", ")}`);
+  }
+  if (delta.addedSignals.length > 0 || delta.removedSignals.length > 0) lines.push("");
+
+  lines.push("## Requirement Changes", "");
+
+  for (const r of delta.requirementDeltas) {
+    const prefix = STATUS_PREFIX[r.status];
+    lines.push(`**[${prefix}] REQ-${r.id}** \`${r.level}\` — _${r.derivedFrom}_`);
+    if (r.status === "REMOVED") {
+      lines.push(`~~${r.statement}~~`);
+    } else if (r.status === "MODIFIED" && r.previousStatement) {
+      lines.push(`~~${r.previousStatement}~~`);
+      lines.push(r.statement);
+    } else {
+      lines.push(r.statement);
+    }
+    lines.push("");
+  }
+
+  return lines.join("\n");
+}
+
 export function specMemorySummary(doc: OpenSpecDocument): string {
   const topReq = doc.requirements[0];
   const signals = doc.derivedSignals.slice(0, 3).join(", ");

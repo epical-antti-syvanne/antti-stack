@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, expect, it } from "vitest";
 import { analyze, banalize, detectCorporateFog, generate, runCodec } from "./agent.js";
-import { formatSpec, generateSpec, type OpenSpecDocument } from "./spec.js";
+import { compareSpecs, formatDeltaSpec, formatSpec, generateSpec, type OpenSpecDocument } from "./spec.js";
 import { transformText, type SatireDirection } from "./codec.js";
 import { compress } from "./compress.js";
 import { analyzeEmotionalWeather } from "./emotion.js";
@@ -467,6 +467,37 @@ describe("Antti agent toolkit", () => {
     expect(markdown).toContain("Satire Anchor");
     expect(doc.proposal.memeAnchor.memeName).toBeTruthy();
     expect(doc.proposal.memeAnchor.text0).toBeTruthy();
+  });
+
+  it("compareSpecs marks new signals as ADDED", () => {
+    const prev = generate({ mode: "diagnose", input: "Teams decides everything.", intensity: "default" });
+    const curr = generate({ mode: "diagnose", input: "Teams decides everything. Excel is the source of truth.", intensity: "default" });
+    const prevDoc = generateSpec("Teams decides everything.", prev.analysis, [], []);
+    const currDoc = generateSpec("Teams decides everything. Excel is the source of truth.", curr.analysis, [], []);
+    const delta = compareSpecs(prevDoc, currDoc);
+    const added = delta.requirementDeltas.filter((r) => r.status === "ADDED");
+    expect(added.length).toBeGreaterThanOrEqual(1);
+    expect(delta.summary).toMatch(/added/);
+  });
+
+  it("compareSpecs marks requirements absent in current as REMOVED", () => {
+    const a = generate({ mode: "diagnose", input: "Excel is the source of truth.", intensity: "default" });
+    const b = generate({ mode: "diagnose", input: "Teams decides everything.", intensity: "default" });
+    const docA = generateSpec("Excel is the source of truth.", a.analysis, [], []);
+    const docB = generateSpec("Teams decides everything.", b.analysis, [], []);
+    const delta = compareSpecs(docA, docB);
+    expect(delta.summary).toMatch(/removed|added/);
+  });
+
+  it("formatDeltaSpec renders ADDED and REMOVED markers", () => {
+    const prev = generate({ mode: "diagnose", input: "Teams decides everything.", intensity: "default" });
+    const curr = generate({ mode: "diagnose", input: "Excel is the source of truth.", intensity: "default" });
+    const prevDoc = generateSpec("Teams decides everything.", prev.analysis, [], []);
+    const currDoc = generateSpec("Excel is the source of truth.", curr.analysis, [], []);
+    const delta = compareSpecs(prevDoc, currDoc);
+    const markdown = formatDeltaSpec(delta);
+    expect(markdown).toMatch(/Delta:/);
+    expect(markdown).toMatch(/ADDED|REMOVED|UNCHANGED/);
   });
 
   it("memory summary uses Antti methodology (spec signals) when analysis has signals", () => {

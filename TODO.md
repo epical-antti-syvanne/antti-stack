@@ -199,7 +199,7 @@ Goal: build a real text-transformation subsystem with humor as a controlled styl
 - [x] Add JSON output for integrations: normalized text, styled text, extracted facts, removed style markers, warnings, risk labels.
 - [x] Add fixtures for round-trip behavior: corporate fog -> plain meaning -> partner-safe satire.
 - [x] Add evaluation labels: `safe`, `sharp`, `too mean`, `too vendor-specific`, `too LinkedIn`, `meaning drift`, `fact invented`, `needs human review`.
-- [ ] Add integration hooks so M365 Copilot, Foundry agents, MCP tools, and future VS Code commands can use the same codec contract.
+- [x] Add integration hooks so M365 Copilot, Foundry agents, MCP tools, and future VS Code commands can use the same codec contract.
 - [x] Add deterministic fallback transforms for common phrases so the feature remains useful without provider-backed LLM calls.
 
 Acceptance:
@@ -283,11 +283,11 @@ Acceptance:
 
 ### Phase 9: Open-Source GitHub Layer
 
-- [ ] Add a GitHub issue/PR human-check gate based on random obscure Finnish trivia.
-- [ ] Require a designated human check answer for creator attribution; wrong creator answer closes or cancels the issue/PR.
-- [ ] Allow scheduled sweeps to close items that remain unanswered past SLA.
-- [ ] Allow maintainers to bypass the trivia gate explicitly for urgent or operational cases.
-- [ ] Document the policy and automation behavior in repo docs/workflows.
+- [x] Add a GitHub issue/PR human-check gate based on random obscure Finnish trivia.
+- [x] Require a designated human check answer for creator attribution; wrong creator answer closes or cancels the issue/PR.
+- [x] Allow scheduled sweeps to close items that remain unanswered past SLA.
+- [x] Allow maintainers to bypass the trivia gate explicitly for urgent or operational cases.
+- [x] Document the policy and automation behavior in repo docs/workflows.
 
 Acceptance:
 
@@ -382,8 +382,8 @@ Recommended next sprint:
 | entra_identity_fog | MUST | Identity policies MUST be documented with tenant scope and named reviewer |
 
 ### Remaining
-- [ ] Delta spec support: mark requirements as ADDED/MODIFIED/REMOVED relative to a prior spec
-- [ ] Export to `.md` file via `antti spec <input> > spec.md` (already works via shell redirection)
+- [x] Delta spec support: mark requirements as ADDED/MODIFIED/REMOVED relative to a prior spec — `antti spec <input> --compare prev.json`, MCP `generate_spec` with `previous_spec` param
+- [x] Export to `.md` file via `antti spec <input> > spec.md` (works via shell redirection)
 - [ ] MCP `generate_spec` integration test with M365/Foundry adapters
 
 ## Feature: imgflip Meme Mode

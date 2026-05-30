@@ -1,4 +1,5 @@
 ﻿#!/usr/bin/env node
+import { readFileSync } from "node:fs";
 import { Command } from "commander";
 import {
   ANTTI_MODES,
@@ -14,7 +15,7 @@ import { compress } from "./compress.js";
 import { addManualMemory, addMemory, listMemory, searchMemory, type MemoryCategory } from "./memory.js";
 import { formatMemeResult, generateMemeUrl, selectMemeTemplate, type MemeTemplate } from "./meme.js";
 import { plan } from "./plan.js";
-import { formatSpec, generateSpec } from "./spec.js";
+import { compareSpecs, formatDeltaSpec, formatSpec, generateSpec, type OpenSpecDocument } from "./spec.js";
 
 const AGENT_RESPONSE_SCHEMA = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
@@ -137,11 +138,24 @@ program
   .description("run the full Antti pipeline and produce an OpenSpec document — satire is the source of truth, requirements are derived from it")
   .argument("[input...]", "workplace problem or goal to specify")
   .option("--json", "emit the full SpecDocument as JSON instead of Markdown")
-  .action((inputParts: string[], options: { json?: boolean }) => {
+  .option("--compare <file>", "compare against a previous spec JSON file and emit a delta")
+  .action((inputParts: string[], options: { json?: boolean; compare?: string }) => {
     const input = inputParts.join(" ").trim() || "enterprise alignment";
     const result = generate({ mode: "diagnose", input, intensity: "default" });
     const planResult = plan(input);
     const doc = generateSpec(input, result.analysis, planResult.tasks, planResult.acceptanceCriteria);
+
+    if (options.compare) {
+      const previous = JSON.parse(readFileSync(options.compare, "utf8")) as OpenSpecDocument;
+      const delta = compareSpecs(previous, doc);
+      if (options.json) {
+        console.log(JSON.stringify(delta, null, 2));
+      } else {
+        console.log(formatDeltaSpec(delta));
+      }
+      return;
+    }
+
     if (options.json) {
       console.log(JSON.stringify(doc, null, 2));
       return;
