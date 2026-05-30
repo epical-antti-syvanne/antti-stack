@@ -48,7 +48,7 @@ What is actually here:
 | MCP stdio | `antti-mcp` | 14 tools for Claude Desktop, Claude Code, GitHub Copilot |
 | MCP HTTP | `antti-mcp-http` | Same 14 tools over HTTP for ChatGPT and remote agents |
 | Satire Codec | `src/codec.ts` | Bidirectional: reduce corporate fog to meaning, induce controlled tone |
-| Token Austerity Office | `src/compress.ts` | Strips ceremony. Reports what survived. Suggests a meme at 20%+ reduction. |
+| Token Austerity Office | `src/compress.ts` | Strips ceremony. Fewer tokens, same meaning. Reports what survived and what was removed. |
 | Emotional Weather | `src/emotion.ts` | Business-emotion hypotheses. Never claims certainty. |
 | Enterprise Gravity | `src/enterprise-gravity.ts` | Partner-safe Microsoft/ERP platform friction detection. |
 | OpenSpec | `src/spec.ts` | Reads satirical signals. Produces SHALL/MUST/SHOULD requirements and Given/When/Then scenarios as a Markdown document. |
@@ -288,7 +288,7 @@ There will be meetings.
 ---
 
 ### `compress`
-Strip ceremony from any text. Report word count reduction and what was removed.
+Strip ceremony from any text. Fewer tokens, same meaning. Use before sending prompts to a model, storing memory, or passing context between agents.
 
 ```bash
 antti compress "We are thrilled to announce a transformational journey to unlock value going forward."

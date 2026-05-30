@@ -142,7 +142,7 @@ export function createAnttiMcpServer(): McpServer {
     "compress",
     {
       title: "Compress corporate text",
-      description: "Strip ceremony and report word count reduction. Returns Token Austerity Office report.",
+      description: "Strip ceremony from text and report word count reduction. Fewer tokens, same meaning. Use before storing prompts, context, or memory entries. Returns Token Austerity Office report.",
       inputSchema: {
         input: z.string().min(1)
       }

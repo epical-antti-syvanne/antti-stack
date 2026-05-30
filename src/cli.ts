@@ -165,7 +165,7 @@ program
 
 program
   .command("compress")
-  .description("strip ceremony from text and report reduction (Token Austerity Office)")
+  .description("strip ceremony from text and report reduction — fewer tokens, same meaning (Token Austerity Office)")
   .argument("[input...]", "text to compress")
   .option("--json", "emit result as JSON")
   .action((inputParts: string[], options: { json?: boolean }) => {
