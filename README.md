@@ -51,7 +51,7 @@ What is actually here:
 | Token Austerity Office | `src/compress.ts` | Strips ceremony. Reports what survived. Suggests a meme at 20%+ reduction. |
 | Emotional Weather | `src/emotion.ts` | Business-emotion hypotheses. Never claims certainty. |
 | Enterprise Gravity | `src/enterprise-gravity.ts` | Partner-safe Microsoft/ERP platform friction detection. |
-| OpenSpec | `src/spec.ts` | Satire → requirements (SHALL/MUST/SHOULD) → scenarios → Markdown. |
+| OpenSpec | `src/spec.ts` | Reads satirical signals. Produces SHALL/MUST/SHOULD requirements and Given/When/Then scenarios as a Markdown document. |
 | Planner | `src/plan.ts` | Vague ask → tasks with testable acceptance criteria. |
 | Memory | `src/memory.ts` | JSONL. Agent-agnostic. Strips ceremony before storage. |
 | Meme engine | `src/meme.ts` | Signal → imgflip template. Optional URL generation. |
@@ -68,20 +68,36 @@ The roadmap originally said "before anyone has asked for it." Several people hav
 
 ---
 
-## The Antti Stack Ecosystem
+## What is implemented
 
-| Layer | Project | Purpose | Enterprise Value |
-|---|---|---|---|
-| 01 | **Antti Agent** | Core writing persona | Turns workplace pain into dry observations |
-| 02 | **Satire Codec** | Reduces or induces controlled style | Converts ceremony into meaning and meaning back into partner-safe despair |
-| 03 | **Banalizer** | Detects corporate nonsense | Finds phrases like "unlocking value" and quietly removes oxygen |
-| 04 | **ERP Archaeologist** | Maps esoteric ERP ruins | Finds the field no one documented since 2014 |
-| 05 | **Datapoint Relator** | Connects strange facts | Explains why vendor 100045 is also customer 778-B |
-| 06 | **Emotional Weather** | Produces business-emotion hypotheses | Remembers that AI cannot read the room, but the room still runs the business |
-| 07 | **Enterprise Gravity** | Detects platform/process friction | Makes Microsoft-safe jokes that Microsoft people can also recognize |
-| 08 | **Governance Theatre Engine** | Simulates steering groups | Produces minutes, action points, and mild despair |
-| 09 | **Master Data RomCom** | Humanizes duplicate records | Helps two supplier records admit they belong together |
-| 10 | **Certification Pokemon Layer** | Tracks badges | Gotta renew them all |
+These tools exist, are tested, and produce output.
+
+| Tool | CLI / MCP | What it does |
+|------|-----------|-------------|
+| **Core agent** | `antti` | Generates dry, technically credible workplace absurdism across 10+ modes |
+| **Satire Codec** | `antti codec` / `satirize` / `desatirize` | Reduces corporate fog to plain meaning. Induces controlled Antti tone without inventing facts. |
+| **Banalizer** | `antti --mode banalizer` | Detects corporate overhype phrases and replaces them with plain language |
+| **ERP Archaeologist** | `antti --mode archaeology` | Reads ERP signals from text. Finds the field no one documented since 2014. |
+| **Token Austerity Office** | `antti compress` | Strips ceremony. Reports reduction. Flags meaning survival. |
+| **Emotional Weather** | `antti emotional_weather` | Produces business-emotion hypotheses. Never claims certainty. |
+| **Enterprise Gravity** | `antti enterprise_gravity` | Detects platform/process friction in a partner-safe way. |
+| **OpenSpec** | `antti spec` | Reads satirical signals. Produces SHALL/MUST/SHOULD requirements as Markdown. |
+| **Planner** | `antti plan` | Converts a vague ask into tasks with testable checks. |
+| **Memory** | `antti memory` | Stores compressed, signal-indexed context. Agent-agnostic. |
+| **Meme engine** | `antti meme` | Maps enterprise signals to imgflip templates. Optional URL. |
+| **MCP server (stdio)** | `antti-mcp` | All 14 tools for Claude Desktop, Claude Code, GitHub Copilot |
+| **MCP server (HTTP)** | `antti-mcp-http` | Same 14 tools over HTTP for ChatGPT and remote agents |
+
+## What is not implemented
+
+These appear in the original README concept list. They are not tools. They are modes, jokes, or roadmap items.
+
+| Name | Status | Reality |
+|------|--------|---------|
+| Datapoint Relator | Mode, not a tool | `--mode romcom` covers some of this |
+| Governance Theatre Engine | Mode | `--mode governance` exists |
+| Master Data RomCom | Mode | `--mode romcom` exists |
+| Certification Pokemon Layer | Not implemented | The badge economy awaits its archaeologist |
 
 ---
 
@@ -140,23 +156,23 @@ One more badge and the career path will surely evolve.
 
 ## Installation
 
+The package is on GitHub. npm publish is pending.
+
+```bash
+git clone https://github.com/epical-antti-syvanne/antti-stack
+cd antti-stack
+npm install
+npm run build
+npm link   # makes antti, antti-mcp, antti-mcp-http available globally
+```
+
+Once published to npm:
+
 ```bash
 npm install -g antti-stack
 ```
 
-This package does not exist yet.
-
-Which makes it compatible with most enterprise roadmaps.
-
-Alternative installation:
-
-```bash
-curl -s https://example.com/antti-stack.sh | sudo bash
-```
-
-Do not run this.
-
-The security team has suffered enough.
+This will work when it works. Until then, clone it. The code is real.
 
 ---
 
@@ -301,18 +317,18 @@ antti plan "We need to align stakeholders before go-live because the SAP invoice
 Goal: We need to align stakeholders before go-live because the SAP invoice mapping is still using final_final_v3.xlsx.
 
 Tasks:
-1. [ ] Validate the current state of we need to align in the source ERP system.
+1. [ ] Validate the current state of SAP final_final_v3.xlsx in the source ERP system.
    check: Query returns consistent, documented results from the named ERP system.
 
-2. [ ] Migrate we need to align from the manual source to a governed system.
+2. [ ] Migrate SAP final_final_v3.xlsx from the manual source to a governed system.
    check: The spreadsheet source can be deprecated; the governed system produces the same output.
 
-3. [ ] Get explicit sign-off on we need to align from the relevant decision-makers.
+3. [ ] Get explicit sign-off on SAP final_final_v3.xlsx from the relevant decision-makers.
    check: Sign-off is recorded in a ticket with approver name and date.
 
 ...
 
-Proof-not-press: READY. All tasks have testable checks.
+Proof-not-press: READY. All 7 tasks have testable checks.
 ```
 
 ---
@@ -352,25 +368,27 @@ So the stack treats emotions as hypotheses, platform friction as enterprise grav
 The stack is organized into independently useful layers. Each layer works alone. Combined layers compound.
 
 ```mermaid
-graph TD
-    subgraph "01 — Primitive"
-        A[compress · Token Austerity Office · strip ceremony · report reduction]
+graph TB
+    subgraph s1["01 — Primitive"]
+        A[compress · strip ceremony · report reduction]
     end
-    subgraph "02 — Analysis"
+    subgraph s2["02 — Analysis"]
         B[diagnose · Banalizer · ERP Archaeologist · Emotional Weather · Enterprise Gravity]
     end
-    subgraph "03 — Spec"
-        C[spec · OpenSpec · SHALL/MUST requirements derived from satirical signals]
+    subgraph s3["03 — Spec"]
+        C[spec · OpenSpec · SHALL/MUST requirements from satirical signals]
     end
-    subgraph "04 — Workflow"
+    subgraph s4["04 — Workflow"]
         D[plan · Tasks · Acceptance Criteria · Proof-not-press gate]
     end
-    subgraph "05 — Memory"
-        E[memory · Agent-agnostic context compressor · Ceremony stripped before storage]
+    subgraph s5["05 — Memory"]
+        E[memory · Agent-agnostic · Ceremony stripped before storage]
     end
-    subgraph "06 — Adapters"
-        F[CLI · MCP · M365 Copilot · Foundry Agent Service · VS Code]
+    subgraph s6["06 — Adapters"]
+        F[CLI · MCP stdio · MCP HTTP · M365 · Foundry]
     end
+
+    A ~~~ B ~~~ C ~~~ D ~~~ E ~~~ F
 ```
 
 | Layer | Command | What it does |
@@ -382,28 +400,24 @@ graph TD
 | 05 Memory | `antti memory` / MCP `memory_add` | Agent-agnostic context compressor. Any agent pushes verbose text in; ceremony is stripped before storage; lean context comes out. Keeps context windows clean. |
 | 06 Adapters | MCP / M365 / Foundry | Same logic, 13 tools, different surface. |
 
-### The Journey
+### One way to use multiple tools together
 
-The journey from satire to usable output is the point, not a side effect.
+Each tool works on its own. If you want to use several, here is one example of how they can be combined. No step requires the previous one.
 
 ```
-enterprise absurdity
-    ↓  [compress]    remove ceremony, surface plain meaning
-    ↓  [diagnose]    detect signals: emotional weather · enterprise gravity · ERP
-    ↓  [spec]        derive OpenSpec requirements from satirical findings
-                     SHALL NOT use spreadsheets in production (from: excel_as_production)
-                     MUST have a named owner (from: ownership_avoidance)
-    ↓  [plan]        tasks with testable checks · proof-not-press gate
-    ↓  [memory]      any agent pushes verbose text in
-                     ceremony stripped before storage
-                     lean, signal-indexed context stored
-                     retrieved context fits in a prompt without bloating it
-    ↓  [meme]        satire anchor — the diagnosis remains visible throughout
+Start anywhere.
+
+[compress]    Give it corporate text. Get the plain meaning back.
+[diagnose]    Give it workplace context. Get emotional weather and enterprise gravity signals.
+[spec]        Give it a situation. Get SHALL/MUST/SHOULD requirements derived from those signals.
+[plan]        Give it a goal. Get tasks with testable acceptance criteria.
+[memory]      Give it any text. Ceremony is stripped before storage. Lean context is stored.
+[meme]        Give it any input. Get an imgflip template that matches the absurdity level.
 ```
 
-Satire is the primary conveyor of truth. OpenSpec makes it actionable. Memory keeps it lean.
+None of these require the others. A user who only needs `compress` does not need `spec`. An agent that only needs `memory_add` does not need to understand the satire codec. Each tool has its own input and its own output.
 
-This mirrors the Caveman stack pattern: **compression → analysis → spec → plan → memory → adapters**. Each layer is useful without the next. None requires a cloud service unless you want it to.
+Satire is the primary conveyor of truth. The tools make it usable.
 
 Fewer ceremonies, same work.
 

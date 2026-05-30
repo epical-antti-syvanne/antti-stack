@@ -149,14 +149,27 @@ function extractGoal(input: string): string {
 }
 
 function shortenContext(input: string): string {
+  // Prefer specific technical anchors over ceremony phrases
+  const erpSystem = input.match(/\b(SAP|Oracle|Dynamics|ERP|Fusion|Navision|AX)\b/i)?.[0];
+  const fileName = input.match(/\b[\w-]+\.(?:xlsx|csv|xls|json|xml|sql)\b/i)?.[0];
+  const fieldCode = input.match(/\b[A-Z][A-Z0-9_]{3,}\b/)?.[0];
+
+  if (erpSystem && fileName) return `${erpSystem} ${fileName}`;
+  if (erpSystem) return `${erpSystem} mapping`;
+  if (fileName) return fileName.toLowerCase();
+  if (fieldCode) return fieldCode;
+
+  // Fall back: strip preamble, prefer the clause after "because/since/due to"
   const stripped = input
     .trim()
     .replace(/^(?:we need to|i need to|please|could you|can you|help (?:us|me)|we have to|we must|we want to)\s+/i, "")
     .replace(/^(?:fix|resolve|update|change|create|make|build|add|remove|ensure|check|verify|validate|confirm|align|migrate|document|review|define|address|handle)\s+/i, "");
 
-  const beforeClause = stripped.split(/\b(?:because|since|as |due to|so that)\b/i)[0].trim();
-  const words = beforeClause.split(/\s+/).slice(0, 5);
-  return words.join(" ").toLowerCase().replace(/[.!?,;]$/, "") || "the work item";
+  const parts = stripped.split(/\b(?:because|since|due to|so that)\b/i);
+  const chosen = (parts.length > 1 ? parts[1] : parts[0]).trim()
+    .replace(/^(?:the|a|an|our|their|this|that)\s+/i, "");
+
+  return chosen.split(/\s+/).slice(0, 4).join(" ").toLowerCase().replace(/[.!?,;]$/, "") || "the work item";
 }
 
 function deriveScope(rules: readonly TaskRule[], input: string): string[] {
