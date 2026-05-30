@@ -288,7 +288,9 @@ There will be meetings.
 ---
 
 ### `compress`
-Strip ceremony from any text. Fewer tokens, same meaning. Use before sending prompts to a model, storing memory, or passing context between agents.
+Stateless text transformation. Text in, compressed text out. Nothing is stored.
+
+Strips ceremony phrases, reports what was removed, checks whether meaning survived. Use it when you want the plain version of a text without writing anything to disk.
 
 ```bash
 antti compress "We are thrilled to announce a transformational journey to unlock value going forward."
@@ -303,6 +305,28 @@ Ceremony removed: 4 pattern(s): going forward (direction theatre); unlock value 
 Meaning: survived compression.
 Verdict: 62% removed. The original had significant ceremony.
 ```
+
+---
+
+### `memory` and `memory-add`
+Persistent storage. Text in, compressed version written to `.antti/memory.jsonl`. Stays there. Retrievable later by search.
+
+`memory-add` compresses the text first (same as `compress`), then stores the result with a category and signal tags. The stored version is the ceremony-stripped version, not the original. Secrets are scrubbed before write.
+
+`memory` searches or lists what has been stored.
+
+```bash
+# Store a decision
+antti memory-add --category decision_fossils "We decided to keep the Excel mapping until SAP go-live."
+
+# Retrieve it later
+antti memory "Excel mapping"
+
+# List everything in a category
+antti memory --category decision_fossils
+```
+
+**The difference from `compress`:** `compress` returns text to you. `memory-add` stores text for later. They both strip ceremony. One is a transformation, one is a write.
 
 ---
 
@@ -396,7 +420,7 @@ graph TB
 | 02 Analysis | `antti --mode diagnose` | Surfaces ERP signals, emotional weather hypotheses, enterprise gravity, meme anchor. |
 | 03 Spec | `antti spec` | Produces an OpenSpec Markdown document. Requirements derived from satirical signals. |
 | 04 Workflow | `antti plan` | Tasks with testable checks, acceptance criteria, proof-not-press gate. |
-| 05 Memory | `antti memory` / MCP `memory_add` | Agent-agnostic context compressor. Any agent pushes verbose text in; ceremony is stripped before storage; lean context comes out. Keeps context windows clean. |
+| 05 Memory | `antti memory` / MCP `memory_add` | Persistent storage. Text in, compressed version written to `.antti/memory.jsonl`. Searchable later. Not the same as `compress` — `compress` returns text, `memory-add` stores it. |
 | 06 Adapters | MCP / M365 / Foundry | Same logic, 13 tools, different surface. |
 
 ### One way to use multiple tools together
