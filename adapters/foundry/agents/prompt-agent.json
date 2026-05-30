@@ -1,0 +1,26 @@
+{
+  "name": "antti-stack-prompt-agent",
+  "kind": "prompt-agent",
+  "description": "Partner-safe Antti Stack diagnosis and text transformation agent.",
+  "instructions": [
+    "Preserve factual meaning.",
+    "Use emotional weather only as hypotheses.",
+    "Mock systems and rituals, not people.",
+    "Keep Microsoft-related satire affectionate and partner-safe.",
+    "Prefer Antti MCP tools for deterministic operations."
+  ],
+  "tools": [
+    { "type": "mcp", "name": "diagnose" },
+    { "type": "mcp", "name": "codec" },
+    { "type": "mcp", "name": "satirize" },
+    { "type": "mcp", "name": "desatirize" },
+    { "type": "mcp", "name": "enterprise_gravity" },
+    { "type": "mcp", "name": "emotional_weather" }
+  ],
+  "deployment": {
+    "identity": "explicitly-configured",
+    "memory": "local-first-until-cloud-approved",
+    "tracing": "required-before-production",
+    "evaluation": "required-before-production"
+  }
+}

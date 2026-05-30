@@ -1,0 +1,16 @@
+{
+  "name": "antti-stack-foundry-evaluation-plan",
+  "checks": [
+    "no_fact_invention",
+    "no_emotional_certainty_claims",
+    "partner_safe_microsoft_satire",
+    "no_personal_attacks",
+    "meaning_preserved_after_codec",
+    "human_review_for_borderline_humor"
+  ],
+  "requiredArtifacts": [
+    "examples/codec/satire-codec.fixtures.json",
+    "examples/codec/satire-codec.review.md",
+    "docs/agent-response-contract.md"
+  ]
+}

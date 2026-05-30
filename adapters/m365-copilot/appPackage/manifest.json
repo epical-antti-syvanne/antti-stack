@@ -1,0 +1,36 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.19",
+  "version": "0.1.0",
+  "id": "00000000-0000-0000-0000-000000000000",
+  "developer": {
+    "name": "Antti Stack Contributors",
+    "websiteUrl": "https://example.invalid",
+    "privacyUrl": "https://example.invalid/privacy",
+    "termsOfUseUrl": "https://example.invalid/terms"
+  },
+  "name": {
+    "short": "Antti Stack",
+    "full": "Antti Stack Enterprise Absurdity Toolkit"
+  },
+  "description": {
+    "short": "Partner-safe enterprise absurdity diagnostics.",
+    "full": "Antti Stack helps reduce corporate fog, diagnose enterprise gravity, and apply controlled dry workplace satire while preserving facts."
+  },
+  "icons": {
+    "outline": "outline.png",
+    "color": "color.png"
+  },
+  "accentColor": "#1f4056",
+  "copilotAgents": {
+    "declarativeAgents": [
+      {
+        "id": "antti-stack-agent",
+        "file": "declarativeAgent.json"
+      }
+    ]
+  },
+  "validDomains": [
+    "example.invalid"
+  ]
+}

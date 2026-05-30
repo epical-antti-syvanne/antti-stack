@@ -1,0 +1,11 @@
+{
+  "name": "antti-stack-review-workflow",
+  "kind": "workflow-agent",
+  "steps": [
+    { "id": "reduce", "tool": "desatirize", "purpose": "Normalize source text to operational meaning." },
+    { "id": "diagnose", "tool": "diagnose", "purpose": "Collect corporate fog, ERP, emotional weather, and enterprise gravity signals." },
+    { "id": "codec", "tool": "codec", "purpose": "Apply controlled tone if requested." },
+    { "id": "review", "tool": "human_review_queue", "purpose": "Queue borderline humor and partner-safety cases for human review." }
+  ],
+  "failurePolicy": "stop-on-fact-invention-or-meaning-drift"
+}
