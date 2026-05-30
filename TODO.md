@@ -1,12 +1,16 @@
 # Antti Stack TODO
 
-This file is the implementation plan for the next expansion of Antti Stack.
+## Architecture Decision (standing)
 
-The current CLI is usable. The next work is to turn the README thesis and local toolkit into a coherent agentic stack without losing the basic README layout.
+**MCP is the primary interface. CLI is local support.**
+
+Claude, ChatGPT, GitHub Copilot, and local models call the MCP tools directly. The CLI exists so a human can run the same tools locally — to test, debug, or operate without an agent in the loop. Same underlying functions. Different surface.
+
+New features go into the MCP tools first. CLI commands follow from the same functions. No feature is CLI-only unless it only makes sense for human interaction (interactive prompts, formatted terminal output).
 
 ## Product Direction
 
-Antti Stack should become a practical agentic writing and diagnosis system for enterprise absurdity.
+Antti Stack is a set of tools for agents and the humans who work with them. The agent is the primary caller. The human is the operator.
 
 The point of view:
 
@@ -40,17 +44,12 @@ Sometimes the game is Microsoft 365 licensing and everyone has decided this is c
 
 ## Architecture Direction
 
-Replace README ASCII diagrams with Mermaid.
+Mermaid diagrams in README. Done.
 
-Required Mermaid diagrams:
+The architecture diagram shows agent→MCP→tools, with CLI as a side branch. No arrows between tools — each tool is independent. No pipeline implied.
 
-- Ecosystem overview.
-- CLI to toolkit flow.
-- Agentic loop: spec -> plan -> execute -> verify -> remember.
-- Emotion gap: AI output capability vs human business reality.
-- Future MCP/API/memory architecture.
-
-The diagrams should be readable in GitHub Markdown.
+Remaining diagram work:
+- [ ] Emotion gap diagram: AI output capability vs human business reality (the emotional weather rationale made visual)
 
 ## Platform Support Requirements
 
@@ -120,7 +119,7 @@ Antti Stack adaptations:
 - [x] Add a Reduced Ritual Kernel for common operations: diagnose, compress, plan, remember, recall, verify, package.
 - [x] Add proof artifacts for every public claim: test, fixture, example, schema, or reproducible CLI command.
 - [ ] Keep each layer independently useful: compression without memory, memory without MCP, MCP without dashboard, dashboard only if reality becomes unavoidable.
-- [x] Make the README explicitly mirror the stack story: primitive -> workflow -> memory -> CLI -> agent platform adapters.
+- [x] Make the README explicitly mirror the stack story: agent → MCP → tools, CLI as local support surface.
 
 Acceptance:
 
@@ -249,26 +248,27 @@ Acceptance:
 - The plan is useful for humans, not just agent ceremony.
 - The workflow reduces ambiguity instead of manufacturing a smaller operating model.
 
-### Phase 7: MCP/API
+### Phase 7: MCP — Primary Interface
 
-Two transports. Same 14 tools. Same core logic. Different entry points.
+MCP is the primary interface. Agents call it. CLI is local support.
 
-**stdio** (`src/mcp.ts` / `antti-mcp`): Claude Desktop, Claude Code, GitHub Copilot (VS Code `.vscode/mcp.json`). No port, no hosting. Client spawns as subprocess.
+Two transports. Same 14 tools. Same core logic via `createAnttiMcpServer()`.
 
-**HTTP Streamable** (`src/mcp-http.ts` / `antti-mcp-http`): ChatGPT, remote agents, any HTTP-capable MCP client. Runs on `127.0.0.1:3000` by default. Set `MCP_HTTP_HOST=0.0.0.0` and `MCP_HTTP_PORT=<port>` for remote access.
+- **stdio** (`antti-mcp`): Claude Desktop, Claude Code, GitHub Copilot. No port, no hosting.
+- **HTTP Streamable** (`antti-mcp-http`): ChatGPT, remote agents, any HTTP MCP client. Default `127.0.0.1:3000`.
 
-- [x] `src/mcp-server.ts`: shared tool factory `createAnttiMcpServer()`.
-- [x] `src/mcp.ts`: stdio entry point. Clients: Claude Desktop, Claude Code, GitHub Copilot.
-- [x] `src/mcp-http.ts`: Streamable HTTP entry point. Clients: ChatGPT, remote agents, any HTTP MCP client.
-- [x] Tools: `generate`, `diagnose`, `banalize`, `satirize`, `desatirize`, `codec`, `compress`, `plan`, `generate_spec`, `generate_meme`, `emotional_weather`, `enterprise_gravity`, `memory_search`, `memory_add`.
-- [x] Core logic shared with CLI — same functions, different surface.
+- [x] `src/mcp-server.ts`: shared tool factory.
+- [x] `src/mcp.ts`: stdio entry point.
+- [x] `src/mcp-http.ts`: HTTP Streamable entry point.
+- [x] 14 tools: `generate`, `diagnose`, `banalize`, `satirize`, `desatirize`, `codec`, `compress`, `plan`, `generate_spec`, `generate_meme`, `emotional_weather`, `enterprise_gravity`, `memory_search`, `memory_add`.
+- [x] CLI runs the same functions locally — support surface, not primary.
+- [ ] MCP `generate_spec` integration test with M365/Foundry adapters (requires deployed environment).
 
 Acceptance:
 
-- Claude Desktop / Claude Code / GitHub Copilot: connect via stdio, no port required.
-- ChatGPT or remote agent: connect via `http://host:3000/mcp`.
+- Any agent with an MCP client calls the tools without knowing about the CLI.
+- stdio for local agents. HTTP for remote or team use.
 - No hosting required for single-user local use.
-- Team/remote use: run `antti-mcp-http` on a shared machine with `MCP_HTTP_HOST=0.0.0.0`.
 
 ### Phase 8: Evaluation Corpus
 
@@ -365,7 +365,7 @@ Recommended next sprint:
 - [x] `"spec"` mode in `ANTTI_MODES` / `generate()`
 - [x] Memory compaction uses `buildMethodologySummary()` — stores signal summary + first derived requirement, not plain compressed text
 - [x] 4 tests covering requirements derivation, satire anchor presence, spec mode output, memory methodology summary
-- [x] README: The Journey section showing satire → compress → spec → plan → memory → meme pipeline
+- [x] README: "One way to use multiple tools together" section — no pipeline arrows, each step independent, none required
 
 ### Signal-to-requirement map (implemented)
 | Signal | Level | Requirement |
@@ -439,13 +439,11 @@ Recommended next sprint:
 
 ## Deferred
 
-- [ ] VS Code extension wiring.
-- JSONL memory. Not SQLite.
-- MCP server: stdio done (Claude Desktop, Claude Code, GitHub Copilot). HTTP Streamable done (ChatGPT, remote agents). Both use the same 14 tools via `createAnttiMcpServer()`.
-- [ ] Browser dashboard.
-- [ ] Provider-backed LLM generation.
-- [ ] Multi-agent reviewer/builder/investigator loop.
-- [x] Create separate static `website/` project.
-- [x] Expose website content from checked-in codec fixtures.
-- [ ] Final website deployment target: separate `website/` project aimed at Domainhotelli.fi
- for domain/DNS/web hosting once the tooling is real enough to deserve a public front door.
+- [ ] VS Code extension — CLI command palette wiring. Deferred: MCP covers the agent surface; VS Code extension is human convenience only.
+- [ ] Browser dashboard — deferred until local model proven. Same reason.
+- [ ] Provider-backed LLM generation — all current tools are deterministic. LLM generation deferred until a specific tool requires it and cannot be deterministic.
+- [ ] Multi-agent reviewer/builder/investigator loop — deferred. Current architecture: one agent calls MCP tools. Multi-agent orchestration is the agent's job, not Antti Stack's.
+- [ ] npm publish — package exists on GitHub. Name `antti-stack` not yet claimed on npm.
+- [ ] Final website deployment — `website/` project targets Domainhotelli.fi. Deferred until tooling is stable enough to deserve a public front door.
+- JSONL memory is permanent. Not SQLite.
+- MCP is done: stdio + HTTP Streamable. Both use the same 14 tools.
