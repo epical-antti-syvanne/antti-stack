@@ -250,20 +250,26 @@ Excel conditional formatting plays the quirky best friend.
 ---
 
 ### `archaeology`
-Find connections between esoteric ERP datapoints.
+Reads text describing an ERP or data problem. Detects signals in that text — field codes, system names, dates, mapping references. Produces dry commentary about the likely organizational and historical shape of the problem.
+
+It does not query any system. It does not look anything up. It reads what you give it and tells you what kind of problem it probably is, based on pattern recognition. The commentary is often accurate about the nature of data problems even when it knows nothing about the specific instance.
+
+Give it a field name, a symptom, or a situation. It will tell you what it sees.
 
 ```bash
-antti archaeology "why do these invoices map to the wrong supplier?"
+antti archaeology "ZZ_SUPP_REF_OLD2 field has wrong values since 2019"
 ```
 
 ```text
-The invoices are not wrong.
+The data is not wrong.
 
-They are historically correct in a way the current process no longer admits.
+It is historically correct in a way the current process no longer admits.
 
-The supplier ID changed in 2018, the purchasing org mapping changed in 2021, and the integration still believes both events are gossip.
+First clue: field archaeology: ZZ_SUPP_REF_OLD2. Field-like tokens suggest undocumented semantics hiding in plain sight.
 
-For reasons, this is now architecture.
+Hypothesis: Check whether 2019 and ZZ_SUPP_REF_OLD2 are linked by an old mapping, merged master record, or reporting shortcut that became policy.
+
+Somewhere between a deprecated field, an undocumented mapping, and a heroic spreadsheet, ZZ_SUPP_REF_OLD2 field has wrong values since 2019 became architecture.
 ```
 
 ---
