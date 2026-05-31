@@ -5,6 +5,12 @@ Static-first website for Antti Stack.
 Run locally:
 
 ```bash
+npm --prefix website run dev
+```
+
+Or from this directory:
+
+```bash
 npm run dev
 ```
 

@@ -1,18 +1,49 @@
 # Antti Stack Ecosystem
 
-The stack starts as one useful agent and must therefore become an ecosystem before anyone can stop it.
+One TypeScript package. Three executable surfaces. Reasoning stays in the agent.
 
-## Planned Packages
+## Surfaces
 
-- `@antti-stack/agent` — core persona and prompt contract
-- `@antti-stack/cli` — local command-line interface
-- `@antti-stack/banalizer` — corporate fog detection and compression
-- `@antti-stack/erp-archaeologist` — esoteric ERP pattern detector
-- `@antti-stack/datapoint-relator` — suspicious fact connector
-- `@antti-stack/governance-theatre` — steering group simulation engine
-- `@antti-stack/master-data-romcom` — duplicate record relationship drama
-- `@antti-stack/vscode` — extension nobody asked for
-- `@antti-stack/mcp` — Model Context Protocol server for workplace absurdity retrieval
+| Surface | Binary | Purpose |
+|---------|--------|---------|
+| CLI | `antti` | Local execution, setup, meme generation, memory management |
+| MCP stdio | `antti-mcp` | I/O tools for Claude Code, GitHub Copilot, Codex |
+| MCP HTTP | `antti-mcp-http` | Same I/O tools over HTTP for ChatGPT, remote agents |
+
+## Architecture Principle
+
+**MCP = I/O layer only.** Tools fetch live data and execute external API calls. No hardcoded analysis, no signal detection, no reasoning.
+
+**Skills = reasoning layer.** Skill files in `prompts/skills/` are system prompts the agent loads. The agent reasons. The skill instructs.
+
+**Agents = subagent layer.** Agent files in `prompts/agents/` define specialized subagents with strict scope limits.
+
+**Hooks = activation layer.** `src/hooks/` contains Claude Code lifecycle hooks that inject the skill at session start, enforce context discipline per turn, trigger model setup when needed, and display the current mode in the status bar.
+
+## Hooks (3)
+
+`src/hooks/`: `antti-activate.js` (SessionStart), `antti-mode-tracker.js` (UserPromptSubmit), `antti-statusline.sh/.ps1` (status bar badge)
+
+| Hook | Trigger | What it does |
+|------|---------|-------------|
+| `antti-activate.js` | SessionStart | Injects skill, detects enterprise gravity, triggers model setup if config missing |
+| `antti-mode-tracker.js` | UserPromptSubmit | Per-turn reinforcement, turn counter, topic drift, slash command handling |
+| `antti-statusline.*` | Status bar poll | Reads `.antti-active` flag, outputs `⚡ Antti` / `🔥 Antti:roast` / `🛡 Antti:safe` |
+
+## MCP Tools (4)
+
+- `get_meme_templates` — live fetch from imgflip.com/popular-meme-ids
+- `caption_meme` — imgflip caption API, returns URL + image
+- `memory_search` — read from `.antti/memory.jsonl`
+- `memory_add` — write to `.antti/memory.jsonl` (ceremony stripped before storage)
+
+## Skills (14)
+
+`prompts/skills/`: diagnose, roast, depress, plan, spec, casing, dataplatform, archaeology, reduce, induce, commit, review, standup, jira
+
+## Agents (4)
+
+`prompts/agents/`: antti-archaeologist, antti-builder, antti-auditor, antti-junior
 
 ## Ecosystem Rule
 
@@ -23,14 +54,8 @@ Every layer must either:
 
 Preferably both.
 
-## Current Local Tool Stack
+## Deferred
 
-The first working stack layer now lives in the TypeScript package:
-
-- `Banalizer`: detects ceremonial corporate language and suggests plainer replacements.
-- `ERP Archaeologist`: finds signals such as legacy mappings, named ERP systems, field-like tokens, years, manual files, and master-data objects.
-- `Datapoint Relator`: proposes suspicious relationships between IDs, fields, and business objects.
-- `Governance Theatre`: turns analysis into decisions, risks, and action points.
-- `Architecture Box Renderer`: emits a simple ASCII architecture sketch and reality check.
-
-The CLI can expose these as text via `--analyze` or machine-readable JSON via `--json`.
+- ~~npm publish~~ — published as `@syvnne/antti-stack@0.1.0`
+- Website deployment.
+- Any new adapter until reality provides a real target and a test.

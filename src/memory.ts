@@ -200,10 +200,7 @@ function inferCategory(response: AgentResponse, tags: string[]): MemoryCategory 
   if (response.mode === "codec" || response.mode === "satirize" || response.mode === "desatirize") {
     return "satire_fixtures";
   }
-  if (response.mode === "governance") {
-    return "decision_fossils";
-  }
-  if (tags.includes("enterprise_gravity")) return "enterprise_gravity";
+if (tags.includes("enterprise_gravity")) return "enterprise_gravity";
   if (tags.includes("emotional_weather")) return "emotional_weather";
   if (tags.includes("corporate_fog")) return "corporate_fog";
   if (tags.includes("erp_archaeology")) return "erp_archaeology";

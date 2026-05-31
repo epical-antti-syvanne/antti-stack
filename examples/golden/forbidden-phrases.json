@@ -87,13 +87,6 @@
         "meetings"
       ]
     },
-    "governance": {
-      "mustContain": [
-        "governance model",
-        "Risks:",
-        "Action points:"
-      ]
-    },
     "plan": {
       "mustContain": [
         "Goal:",
@@ -102,7 +95,7 @@
         "Proof-not-press:"
       ]
     },
-    "compress": {
+    "depress": {
       "mustContain": [
         "Token Austerity Office report:",
         "Reduction:",

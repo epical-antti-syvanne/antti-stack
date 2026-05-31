@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -23,6 +23,7 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - run: npm run release:windows
 
       - name: Publish to npm
         run: npm publish --access public
@@ -34,7 +35,10 @@ jobs:
         with:
           script: |
             const tag = context.ref.replace('refs/tags/', '');
-            await github.rest.repos.createRelease({
+            const fs = require('fs');
+            const path = require('path');
+            const pkg = require('./package.json');
+            const release = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
               tag_name: tag,
@@ -42,4 +46,13 @@ jobs:
               generate_release_notes: true,
               draft: false,
               prerelease: tag.includes('-')
+            });
+            const assetName = `antti-stack-v${pkg.version}-windows.zip`;
+            const assetPath = path.join('release', assetName);
+            await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.data.id,
+              name: assetName,
+              data: fs.readFileSync(assetPath)
             });

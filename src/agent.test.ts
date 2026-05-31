@@ -280,8 +280,8 @@ describe("Antti agent toolkit", () => {
     expect(result.tasks.some((t) => /metric/i.test(t.description))).toBe(true);
   });
 
-  it("compress and plan modes are accessible via generate()", () => {
-    const compressResult = generate({ mode: "compress", input: "Going forward we will leverage synergy.", intensity: "default" });
+  it("depress and plan modes are accessible via generate()", () => {
+    const compressResult = generate({ mode: "depress", input: "Going forward we will leverage synergy.", intensity: "default" });
     const planResult = generate({ mode: "plan", input: "SAP invoice mapping uses final_final.xlsx.", intensity: "default" });
 
     expect(compressResult.output).toContain("Token Austerity Office report:");
@@ -319,7 +319,7 @@ describe("Antti agent toolkit", () => {
     expect(template.text1).toContain("steering group");
   });
 
-  it("compress includes meme suggestion for high-ceremony input", () => {
+  it("depress includes meme suggestion for high-ceremony input", () => {
     const result = compress(
       "Going forward we will holistically leverage synergies to unlock transformational value across the enterprise."
     );
@@ -373,8 +373,8 @@ describe("Antti agent toolkit", () => {
       "Teams channel governance and SharePoint folder sprawl with Excel-as-production.",
       "SAP invoice mapping uses final_final_v3.xlsx and nobody owns it before go-live."
     ];
-    const modes: Array<"post" | "banalizer" | "diagnose" | "governance" | "ideas"> = [
-      "post", "banalizer", "diagnose", "governance", "ideas"
+    const modes: Array<"banalizer" | "diagnose"> = [
+      "banalizer", "diagnose"
     ];
 
     for (const input of testInputs) {
@@ -395,14 +395,14 @@ describe("Antti agent toolkit", () => {
     let output: string;
     if (mode === "plan") {
       output = plan(input).report;
-    } else if (mode === "compress") {
+    } else if (mode === "depress") {
       const r = compress(input);
       output = `${r.compressed}\n${r.report}`;
     } else if (mode === "meme") {
       const r = generate({ mode: "meme", input, intensity: "default" });
       output = r.output;
     } else {
-      const r = generate({ mode: mode as "diagnose" | "banalizer" | "governance", input, intensity: "default" });
+      const r = generate({ mode: mode as "diagnose" | "banalizer", input, intensity: "default" });
       output = r.output;
     }
 
@@ -424,8 +424,8 @@ describe("Antti agent toolkit", () => {
 
   it("all golden forbidden phrases absent from all modes across ALL_FORBIDDEN list", () => {
     const input = "We are thrilled to share that the Microsoft Teams governance is transformational.";
-    const modes: Array<"post" | "comment" | "banalizer" | "diagnose" | "governance" | "ideas" | "satirize" | "desatirize"> = [
-      "post", "comment", "banalizer", "diagnose", "governance", "ideas", "satirize", "desatirize"
+    const modes: Array<"banalizer" | "diagnose" | "satirize" | "desatirize"> = [
+      "banalizer", "diagnose", "satirize", "desatirize"
     ];
 
     for (const mode of modes) {
@@ -515,3 +515,4 @@ describe("Antti agent toolkit", () => {
     expect(listMemory(path).length).toBe(1);
   });
 });
+

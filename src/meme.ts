@@ -189,6 +189,38 @@ export async function generateMemeUrl(template: MemeTemplate): Promise<MemeResul
   }
 }
 
+export async function captionMeme(
+  templateId: string,
+  templateName: string,
+  boxes: string[]
+): Promise<MemeResult> {
+  const username = process.env["IMGFLIP_USERNAME"];
+  const password = process.env["IMGFLIP_PASSWORD"];
+
+  if (!username || !password) {
+    return { memeId: templateId, memeName: templateName, text0: boxes[0] ?? "", text1: boxes[1] ?? "", memeUrl: null, fallbackReason: "IMGFLIP_USERNAME or IMGFLIP_PASSWORD not set" };
+  }
+
+  try {
+    const body = new URLSearchParams({ template_id: templateId, username, password });
+    boxes.forEach((text, i) => body.set(`boxes[${i}][text]`, text));
+
+    const response = await fetch("https://api.imgflip.com/caption_image", { method: "POST", body });
+    if (!response.ok) {
+      return { memeId: templateId, memeName: templateName, text0: boxes[0] ?? "", text1: boxes[1] ?? "", memeUrl: null, fallbackReason: `imgflip API returned ${response.status}` };
+    }
+
+    const json = await response.json() as { success: boolean; data?: { url: string }; error_message?: string };
+    if (!json.success || !json.data?.url) {
+      return { memeId: templateId, memeName: templateName, text0: boxes[0] ?? "", text1: boxes[1] ?? "", memeUrl: null, fallbackReason: json.error_message ?? "imgflip API returned success:false" };
+    }
+
+    return { memeId: templateId, memeName: templateName, text0: boxes[0] ?? "", text1: boxes[1] ?? "", memeUrl: json.data.url, fallbackReason: null };
+  } catch (error) {
+    return { memeId: templateId, memeName: templateName, text0: boxes[0] ?? "", text1: boxes[1] ?? "", memeUrl: null, fallbackReason: error instanceof Error ? error.message : "Network error" };
+  }
+}
+
 export function formatMemeResult(result: MemeResult): string {
   const lines = [
     `Meme: ${result.memeName}`,
@@ -227,7 +259,10 @@ export function extractMemeContext(input: string): string {
   const kept: string[] = [];
 
   for (const word of words) {
-    if (CONTEXT_STOP.test(word)) break;
+    if (CONTEXT_STOP.test(word)) {
+      if (kept.length === 0) continue; // skip leading stop words before any noun
+      break;
+    }
     kept.push(word);
     if (kept.length >= 3) break;
   }

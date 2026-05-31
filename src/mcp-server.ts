@@ -1,32 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { banalize, generate, runCodec, type AnttiIntensity, type AnttiMode } from "./agent.js";
-import type { SatireDirection } from "./codec.js";
-import { compress } from "./compress.js";
-import { analyzeEmotionalWeather } from "./emotion.js";
-import { analyzeEnterpriseGravity } from "./enterprise-gravity.js";
 import { addContextMemory, searchMemory } from "./memory.js";
-import { generateMemeUrl } from "./meme.js";
-import { plan } from "./plan.js";
-import { compareSpecs, formatDeltaSpec, formatSpec, generateSpec, type OpenSpecDocument } from "./spec.js";
-
-const intensitySchema = z.enum(["safe", "default", "more-edge"]).default("default");
-const modeSchema = z.enum([
-  "post",
-  "comment",
-  "banalizer",
-  "romcom",
-  "archaeology",
-  "governance",
-  "architecture",
-  "diagnose",
-  "ideas",
-  "desatirize",
-  "satirize",
-  "codec",
-  "compress",
-  "plan"
-]);
+import { captionMeme } from "./meme.js";
+import { fetchMemeTemplates } from "./meme-templates.js";
 
 export function createAnttiMcpServer(): McpServer {
   const server = new McpServer({
@@ -35,185 +11,58 @@ export function createAnttiMcpServer(): McpServer {
   });
 
   server.registerTool(
-    "generate",
+    "get_meme_templates",
     {
-      title: "Generate Antti output",
-      description: "Generate Antti Stack output for a mode and input.",
-      inputSchema: {
-        mode: modeSchema.default("post"),
-        input: z.string().min(1),
-        intensity: intensitySchema
-      }
+      title: "get_meme_templates — list imgflip popular meme templates",
+      description:
+        "Fetches the top 100 popular meme templates from imgflip.com/popular-meme-ids. Returns id, name, and alternate names for each. Use this to browse available templates before calling caption_meme. Results are cached for the session.",
+      inputSchema: {}
     },
-    ({ mode, input, intensity }) => jsonTool(generate({ mode: mode as AnttiMode, input, intensity: intensity as AnttiIntensity }))
-  );
-
-  server.registerTool(
-    "diagnose",
-    {
-      title: "Diagnose workplace input",
-      description: "Run the full diagnostic stack: fog, ERP, relations, emotional weather, enterprise gravity, governance, architecture.",
-      inputSchema: {
-        input: z.string().min(1),
-        intensity: intensitySchema
-      }
-    },
-    ({ input, intensity }) => jsonTool(generate({ mode: "diagnose", input, intensity: intensity as AnttiIntensity }))
-  );
-
-  server.registerTool(
-    "satirize",
-    {
-      title: "Induce Antti-style tone",
-      description: "Apply controlled Antti-style satire to plain operational meaning without inventing facts.",
-      inputSchema: {
-        input: z.string().min(1),
-        intensity: intensitySchema
-      }
-    },
-    ({ input, intensity }) => jsonTool(generate({ mode: "satirize", input, intensity: intensity as AnttiIntensity }))
-  );
-
-  server.registerTool(
-    "desatirize",
-    {
-      title: "Reduce styled text",
-      description: "Normalize corporate or satirical formatting into plain operational meaning.",
-      inputSchema: {
-        input: z.string().min(1),
-        intensity: intensitySchema
-      }
-    },
-    ({ input, intensity }) => jsonTool(generate({ mode: "desatirize", input, intensity: intensity as AnttiIntensity }))
-  );
-
-  server.registerTool(
-    "codec",
-    {
-      title: "Run Satire Codec",
-      description: "Run the bidirectional codec directly and return structured transformation metadata.",
-      inputSchema: {
-        direction: z.enum(["reduce", "induce"]),
-        input: z.string().min(1),
-        intensity: intensitySchema
-      }
-    },
-    ({ direction, input, intensity }) => jsonTool(runCodec(direction as SatireDirection, input, intensity as AnttiIntensity))
-  );
-
-  server.registerTool(
-    "banalize",
-    {
-      title: "Banalize corporate language",
-      description: "Reduce corporate fog into plainer operational meaning.",
-      inputSchema: {
-        input: z.string().min(1),
-        intensity: intensitySchema
-      }
-    },
-    ({ input, intensity }) => jsonTool({ output: banalize(input, intensity as AnttiIntensity) })
-  );
-
-  server.registerTool(
-    "emotional_weather",
-    {
-      title: "Analyze emotional weather",
-      description: "Return business-emotion hypotheses with evidence and operational impact. Does not claim to read minds.",
-      inputSchema: {
-        input: z.string().min(1)
-      }
-    },
-    ({ input }) => jsonTool({ emotionalWeather: analyzeEmotionalWeather(input) })
-  );
-
-  server.registerTool(
-    "enterprise_gravity",
-    {
-      title: "Analyze enterprise gravity",
-      description: "Return partner-safe platform/process gravity findings.",
-      inputSchema: {
-        input: z.string().min(1)
-      }
-    },
-    ({ input }) => jsonTool({ enterpriseGravity: analyzeEnterpriseGravity(input) })
-  );
-
-  server.registerTool(
-    "compress",
-    {
-      title: "Compress corporate text",
-      description: "Strip ceremony from text and report word count reduction. Fewer tokens, same meaning. Use before storing prompts, context, or memory entries. Returns Token Austerity Office report.",
-      inputSchema: {
-        input: z.string().min(1)
-      }
-    },
-    ({ input }) => jsonTool(compress(input))
-  );
-
-  server.registerTool(
-    "plan",
-    {
-      title: "Generate a proof-not-press plan",
-      description: "Convert a vague enterprise ask into tasks with acceptance criteria and testable checks.",
-      inputSchema: {
-        goal: z.string().min(1)
-      }
-    },
-    ({ goal }) => jsonTool(plan(goal))
-  );
-
-  server.registerTool(
-    "generate_meme",
-    {
-      title: "Generate a workplace absurdity meme",
-      description: "Select an imgflip meme template matching enterprise signals in the input. Optionally captions it via the imgflip API (requires IMGFLIP_USERNAME and IMGFLIP_PASSWORD env vars).",
-      inputSchema: {
-        input: z.string().min(1),
-        generate_url: z.boolean().default(true)
-      }
-    },
-    async ({ input, generate_url }) => {
-      const result = generate({ mode: "diagnose", input, intensity: "default" });
-      const template = result.analysis.memeSuggestion;
-      if (!generate_url) {
-        return jsonTool({ ...template, memeUrl: null, fallbackReason: "skipped via generate_url:false" });
-      }
-      const memeResult = await generateMemeUrl(template);
-      return jsonTool(memeResult);
+    async () => {
+      const templates = await fetchMemeTemplates();
+      return jsonTool({ templates });
     }
   );
 
   server.registerTool(
-    "generate_spec",
+    "caption_meme",
     {
-      title: "Generate an OpenSpec document",
-      description: "Runs the full Antti Stack pipeline on input — satire analysis, compression, plan — and produces an OpenSpec-format Markdown document. Satire is the source of truth; requirements are derived from satirical signal detection. Pass previous_spec (a prior OpenSpecDocument JSON) to get a delta showing ADDED/MODIFIED/REMOVED requirements.",
+      title: "caption_meme — generate captioned meme via imgflip API",
+      description:
+        "Captions a meme template with the provided text boxes and returns the URL and inline image. Requires IMGFLIP_USERNAME and IMGFLIP_PASSWORD env vars. Call get_meme_templates first to find the right template_id. boxes is an array of caption strings — match the count to the template (most templates use 2 boxes, some use 3–5).",
       inputSchema: {
-        input: z.string().min(1),
-        format: z.enum(["markdown", "json"]).default("markdown"),
-        previous_spec: z.string().optional().describe("JSON string of a prior OpenSpecDocument for delta comparison")
+        template_id: z.string().min(1).describe("imgflip template ID from get_meme_templates"),
+        template_name: z.string().min(1).describe("template name for labelling the result"),
+        boxes: z.array(z.string().min(1)).min(1).max(20).describe("caption text for each box in order")
       }
     },
-    ({ input, format, previous_spec }) => {
-      const result = generate({ mode: "diagnose", input, intensity: "default" });
-      const planResult = plan(input);
-      const doc = generateSpec(input, result.analysis, planResult.tasks, planResult.acceptanceCriteria);
+    async ({ template_id, template_name, boxes }) => {
+      const result = await captionMeme(template_id, template_name, boxes);
 
-      if (previous_spec) {
-        const previous = JSON.parse(previous_spec) as OpenSpecDocument;
-        const delta = compareSpecs(previous, doc);
-        return jsonTool(format === "json" ? delta : { markdown: formatDeltaSpec(delta) });
+      const content: Array<{ type: "text"; text: string } | { type: "image"; data: string; mimeType: string }> = [
+        { type: "text", text: JSON.stringify(result, null, 2) }
+      ];
+
+      if (result.memeUrl) {
+        try {
+          const imgResponse = await fetch(result.memeUrl);
+          const buffer = await imgResponse.arrayBuffer();
+          const base64 = Buffer.from(buffer).toString("base64");
+          content.push({ type: "image", data: base64, mimeType: "image/jpeg" });
+        } catch {
+          // image fetch failed — URL is still in the JSON above
+        }
       }
 
-      return jsonTool(format === "json" ? doc : { markdown: formatSpec(doc) });
+      return { content };
     }
   );
 
   server.registerTool(
     "memory_search",
     {
-      title: "Search local Antti memory",
-      description: "Search local JSONL memory. Defaults to .antti/memory.jsonl.",
+      title: "memory_search — retrieve stored context",
+      description: "Search local JSONL memory by keyword. Defaults to .antti/memory.jsonl.",
       inputSchema: {
         query: z.string().min(1),
         path: z.string().default(".antti/memory.jsonl")
@@ -225,8 +74,9 @@ export function createAnttiMcpServer(): McpServer {
   server.registerTool(
     "memory_add",
     {
-      title: "Compress and store context",
-      description: "Agent-agnostic context compression. Any agent can push verbose corporate text here: ceremony is stripped, signals are indexed, and the lean version is stored. Keeps agent context windows clean. Returns what was stored plus compression stats.",
+      title: "memory_add — store context",
+      description:
+        "Store a note, observation, or finding in local JSONL memory. Text is compressed before storage to keep the file lean. Returns what was stored and compression stats.",
       inputSchema: {
         text: z.string().min(1),
         source: z.string().optional(),

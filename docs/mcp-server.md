@@ -1,37 +1,38 @@
-﻿# MCP Server
+# MCP Server
 
-Antti Stack exposes a stdio MCP server for local agent clients.
+Antti Stack exposes 4 I/O tools over stdio and Streamable HTTP. The MCP does execution only — no reasoning, no hardcoded analysis. The agent does the reasoning via skills in `prompts/skills/`.
 
-Run from source:
+## Running
 
 ```bash
+# From source
 npm run dev:mcp
-```
 
-Run after build:
+# After build
+npm run build && node dist/mcp.js
 
-```bash
-npm run build
-node dist/mcp.js
-```
-
-Package binary after install/link:
-
-```bash
+# Installed binary
 antti-mcp
+
+# HTTP transport
+node dist/mcp-http.js
+# endpoint: http://localhost:3000/mcp
 ```
 
 ## Tools
 
-- `generate`: generate any Antti mode.
-- `diagnose`: run the full diagnostic stack.
-- `banalize`: reduce corporate fog into plainer operational meaning.
-- `emotional_weather`: return business-emotion hypotheses with evidence and impact.
-- `enterprise_gravity`: return partner-safe platform/process gravity findings.
-- `satirize`: induce controlled Antti-style tone.
-- `desatirize`: reduce styled/corporate text to plain operational meaning.
-- `codec`: run the Satire Codec directly with `direction: reduce | induce`.
-- `memory_search`: search local `.antti/memory.jsonl` or a provided JSONL path.
+| Tool | What it does |
+|------|-------------|
+| `get_meme_templates` | Fetches top 100 popular meme templates from imgflip.com/popular-meme-ids. Returns `{id, name, altName}` for each. Cached per session. |
+| `caption_meme` | Takes `template_id`, `template_name`, and `boxes[]` from the agent. Calls imgflip caption API. Returns JSON result + inline image. Requires `IMGFLIP_USERNAME` and `IMGFLIP_PASSWORD`. |
+| `memory_search` | Searches `.antti/memory.jsonl` by keyword. Returns matching records. |
+| `memory_add` | Strips ceremony from input text, then stores the compressed version in `.antti/memory.jsonl`. Returns what was stored and compression stats. |
+
+## Typical agent flow for memes
+
+1. Agent calls `get_meme_templates` — receives the template list
+2. Agent selects the best template and writes captions based on the situation
+3. Agent calls `caption_meme` with its choices — receives URL + image
 
 ## Smoke Test
 
@@ -39,21 +40,21 @@ antti-mcp
 npm run test:mcp
 ```
 
-This builds the TypeScript package, starts the stdio MCP server through the SDK client transport, lists tools, and calls `diagnose`.
+Builds the package, starts the stdio server, lists tools, checks the surface.
 
-## Client Config Shape
+## Client Config
 
-Example MCP client entry:
+Run `antti setup` to configure automatically, or add manually:
 
 ```json
 {
   "mcpServers": {
     "antti-stack": {
-      "command": "node",
-      "args": ["C:/repo/antti-stack/dist/mcp.js"]
+      "command": "antti-mcp",
+      "type": "stdio"
     }
   }
 }
 ```
 
-The server is intentionally local-first. It does not call model providers.
+The server is local-first. It does not call model providers.

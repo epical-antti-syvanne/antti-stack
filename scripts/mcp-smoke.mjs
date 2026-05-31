@@ -13,7 +13,19 @@ await client.connect(transport);
 
 const tools = await client.listTools();
 const names = tools.tools.map((tool) => tool.name).sort();
-const required = ["generate", "diagnose", "codec", "emotional_weather", "enterprise_gravity", "memory_search"];
+const required = [
+  "archaeology",
+  "casing",
+  "data_platform",
+  "depress",
+  "emotional_weather",
+  "enterprise_gravity",
+  "generate_meme",
+  "generate_spec",
+  "memory_add",
+  "memory_search",
+  "plan"
+];
 
 for (const name of required) {
   if (!names.includes(name)) {
@@ -22,16 +34,15 @@ for (const name of required) {
 }
 
 const result = await client.callTool({
-  name: "diagnose",
+  name: "enterprise_gravity",
   arguments: {
-    input: "Power BI definitions live in Excel before go-live.",
-    intensity: "safe"
+    input: "Power BI definitions live in Excel before go-live."
   }
 });
 
 const text = result.content?.[0]?.type === "text" ? result.content[0].text : "";
-if (!text.includes("enterpriseGravity") || !text.includes("emotionalWeather")) {
-  throw new Error("MCP diagnose result did not include expected analysis fields.");
+if (!text.includes("enterpriseGravity")) {
+  throw new Error("MCP enterprise_gravity result did not include expected field.");
 }
 
 await client.close();

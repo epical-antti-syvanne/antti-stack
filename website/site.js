@@ -14,7 +14,7 @@ try {
     `;
   }).join("");
 } catch {
-  target.textContent = "Fixture data unavailable. A small governance bird has taken the JSON.";
+  target.textContent = "Fixture data unavailable. The JSON has moved to a new folder with a confident name.";
 }
 
 function escapeHtml(value) {

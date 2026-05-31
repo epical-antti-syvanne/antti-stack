@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 #  Antti Stack(TM)
 
@@ -43,30 +43,72 @@ No cloud service required. No hosting required. No transformation program requir
 
 ### Primary interface — MCP
 
-The agent calls these. Same 14 tools on both transports.
+The agent calls these. The MCP surface is **4 I/O tools** — execution only, no reasoning. The agent does the reasoning via skills.
 
 | Transport | Binary | Clients |
 |-----------|--------|---------|
-| stdio | `antti-mcp` | Claude Desktop, Claude Code, GitHub Copilot |
+| stdio | `antti-mcp` | Claude Code, GitHub Copilot, Codex |
 | HTTP (Streamable) | `antti-mcp-http` | ChatGPT, remote agents, any HTTP MCP client |
+
+| Tool | What it does |
+|------|-------------|
+| `get_meme_templates` | Fetches top 100 imgflip templates from imgflip.com/popular-meme-ids. Live, cached per session. |
+| `caption_meme` | Calls imgflip caption API with agent-provided template ID and text boxes. Returns URL + inline image. |
+| `memory_search` | Retrieves stored context from `.antti/memory.jsonl`. |
+| `memory_add` | Stores context. Strips ceremony before write. |
+
+Analysis, reasoning, and generation are done by the agent using skills — not by the MCP tools.
+
+### Skills — agent reasoning layer
+
+Skills live in `prompts/skills/`. Each is a standalone system prompt the agent loads for a specific task. No hardcoded rules — the agent reasons, the skill instructs.
+
+| Skill | What it does |
+|-------|-------------|
+| `diagnose` | Enterprise situation analysis: fog, ERP signals, gravity, emotional weather, governance theatre, meme anchor |
+| `roast` | Satirical take on a workplace situation. Finnish deadpan. |
+| `depress` | Strip ceremony from text. 40%+ reduction target. |
+| `plan` | Vague ask → tasks with testable proof criteria. Flags governance theatre. |
+| `spec` | SHALL/MUST/SHOULD requirements from the situation, not the stated goal. |
+| `casing` | Identifier casing conversion. Mocks wrong choices. Converts correctly anyway. |
+| `dataplatform` | Real decision driver, vendor promises vs reality, billing surprises. |
+| `archaeology` | 4-phase ERP investigation guide. |
+| `reduce` | Corporate → plain English. |
+| `induce` | Plain English → corporate theatre. |
+| `commit` | Conventional commit messages with optional dry organizational context. |
+| `review` | Code review: bug / gravity / fog / theatre severity tiers. |
+| `standup` | Bidirectional: actual work → plain summary, or plain → steering-group-ready. |
+| `jira` | 5 words → complete Jira epic. The ratio is the joke. |
+
+### Agents — subagent layer
+
+Agents live in `prompts/agents/`. Specialized subagents with strict scope limits.
+
+| Agent | What it does |
+|-------|-------------|
+| `antti-archaeologist` | Read-only code investigation. Finds undocumented integrations, frozen decisions. Refuses to suggest fixes. |
+| `antti-builder` | Surgical edits. 1–2 files max. Returns a receipt. Refuses 3+ file scope. |
+| `antti-auditor` | Diff/branch reviewer. Enterprise severity tiers. No praise. |
+| `antti-junior` | Executes exactly what the ticket says. Nothing more. Escalates on ambiguity. |
 
 ### Support interface — CLI
 
-A human runs these locally. Same underlying functions as MCP.
+Local execution and setup.
 
-| Component | File | What it does |
-|-----------|------|-------------|
-| CLI | `antti` | 10+ modes: diagnose, compress, plan, spec, meme, memory, codec |
-| Satire Codec | `src/codec.ts` | Bidirectional: reduce corporate fog to meaning, induce controlled tone |
-| Token Austerity Office | `src/compress.ts` | Strips ceremony. Fewer tokens, same meaning. Reports what survived and what was removed. |
-| Emotional Weather | `src/emotion.ts` | Business-emotion hypotheses. Never claims certainty. |
-| Enterprise Gravity | `src/enterprise-gravity.ts` | Partner-safe Microsoft/ERP platform friction detection. |
-| OpenSpec | `src/spec.ts` | Reads satirical signals. Produces SHALL/MUST/SHOULD requirements and Given/When/Then scenarios as a Markdown document. |
-| Planner | `src/plan.ts` | Vague ask → tasks with testable acceptance criteria. |
-| Memory | `src/memory.ts` | JSONL. Agent-agnostic. Strips ceremony before storage. |
-| Meme engine | `src/meme.ts` | Signal → imgflip template. Optional URL generation. |
-| M365 adapter | `adapters/m365/` | Declarative agent scaffold + validation. |
-| Foundry adapter | `adapters/foundry/` | Agent Service scaffold + validation. |
+| Command | What it does |
+|---------|-------------|
+| `antti setup` | Detects installed agent CLIs (Claude Code, Codex, VS Code, Pi). Writes MCP config + skill. Installs hooks. Installs statusline. |
+| `antti setup --init` | Writes per-repo rule files: `AGENTS.md`, `.github/copilot-instructions.md` |
+| `antti models` | Shows current model configuration |
+| `antti meme --list` | Fetches live template list from imgflip.com/popular-meme-ids |
+| `antti meme --template <id> <text...>` | Generates a captioned meme via imgflip API |
+| `antti memory` | Search or list stored context |
+| `antti memory-add` | Add a note to local memory |
+| `antti depress` | Strip ceremony from text |
+| `antti plan` | Vague ask → tasks with testable checks |
+| `antti spec` | Situation → SHALL/MUST/SHOULD requirements |
+| `antti casing` | Convert identifier casing |
+| `antti dataplatform` | Data platform signal detection |
 
 The satire is the diagnostic instrument. The code is the delivery vehicle. Both are open source.
 
@@ -80,33 +122,29 @@ The roadmap originally said "before anyone has asked for it." Several people hav
 
 ## What is implemented
 
-These tools exist, are tested, and produce output.
+These exist, are tested, and produce output.
 
-| Tool | CLI / MCP | What it does |
-|------|-----------|-------------|
-| **Core agent** | `antti` | Generates dry, technically credible workplace absurdism across 10+ modes |
-| **Satire Codec** | `antti codec` / `satirize` / `desatirize` | Reduces corporate fog to plain meaning. Induces controlled Antti tone without inventing facts. |
-| **Banalizer** | `antti --mode banalizer` | Detects corporate overhype phrases and replaces them with plain language |
-| **ERP Archaeologist** | `antti --mode archaeology` | Reads ERP signals from text. Finds the field no one documented since 2014. |
-| **Token Austerity Office** | `antti compress` | Strips ceremony. Reports reduction. Flags meaning survival. |
-| **Emotional Weather** | `antti emotional_weather` | Produces business-emotion hypotheses. Never claims certainty. |
-| **Enterprise Gravity** | `antti enterprise_gravity` | Detects platform/process friction in a partner-safe way. |
-| **OpenSpec** | `antti spec` | Reads satirical signals. Produces SHALL/MUST/SHOULD requirements as Markdown. |
-| **Planner** | `antti plan` | Converts a vague ask into tasks with testable checks. |
-| **Memory** | `antti memory` | Stores compressed, signal-indexed context. Agent-agnostic. |
-| **Meme engine** | `antti meme` | Maps enterprise signals to imgflip templates. Optional URL. |
-| **MCP server (stdio)** | `antti-mcp` | All 14 tools for Claude Desktop, Claude Code, GitHub Copilot |
-| **MCP server (HTTP)** | `antti-mcp-http` | Same 14 tools over HTTP for ChatGPT and remote agents |
+| Component | Surface | What it does |
+|-----------|---------|-------------|
+| **MCP server (stdio)** | `antti-mcp` | 4 I/O tools for Claude Code, GitHub Copilot, Codex |
+| **MCP server (HTTP)** | `antti-mcp-http` | Same 4 I/O tools over HTTP for ChatGPT and remote agents |
+| **Skills** | `prompts/skills/` | 14 skill files: diagnose, roast, depress, plan, spec, casing, dataplatform, archaeology, reduce, induce, commit, review, standup, jira |
+| **Agents** | `prompts/agents/` | 4 subagents: archaeologist, builder, auditor, junior |
+| **Hooks** | `src/hooks/` | SessionStart (skill injection, gravity detection, model setup trigger), UserPromptSubmit (context discipline, turn counter, topic drift), Statusline (mode badge in Claude Code status bar) |
+| **Setup** | `antti setup` | Auto-detects agent CLIs, writes MCP config and skill, installs hooks |
+| **Meme** | `antti meme` | Live template list from imgflip.com, caption via API |
+| **Memory** | `antti memory` | Persistent JSONL storage with ceremony stripping |
+| **Model config** | `~/.antti/models.json` | Agent-driven setup at session start if config missing or >30 days old |
 
 ## What is not implemented
 
-These appear in the original README concept list. They are not tools. They are modes, jokes, or roadmap items.
+These appeared in the original README concept list. They are no longer implemented CLI modes or MCP tools.
 
 | Name | Status | Reality |
 |------|--------|---------|
-| Datapoint Relator | Mode, not a tool | `--mode romcom` covers some of this |
-| Governance Theatre Engine | Mode | `--mode governance` exists |
-| Master Data RomCom | Mode | `--mode romcom` exists |
+| Datapoint Relator | Internal analysis concept | Relations are included in `diagnose` analysis, not exposed as a separate command. |
+| Governance Theatre Engine | Internal analysis concept | Governance artifacts are included in `AgentResponse.analysis`, not exposed as a separate mode. |
+| Master Data RomCom | Removed prompt mode | Master-data jokes remain content, not a current CLI mode. |
 | Certification Pokemon Layer | Not implemented | The badge economy awaits its archaeologist |
 
 ---
@@ -166,7 +204,11 @@ One more badge and the career path will surely evolve.
 
 ## Installation
 
-The package is on GitHub. npm publish is pending.
+```bash
+npm install -g @syvnne/antti-stack
+```
+
+Or from source:
 
 ```bash
 git clone https://github.com/epical-antti-syvanne/antti-stack
@@ -176,90 +218,59 @@ npm run build
 npm link   # makes antti, antti-mcp, antti-mcp-http available globally
 ```
 
-Once published to npm:
+### Windows installable zip
 
-```bash
-npm install -g antti-stack
+Build the local Windows release:
+
+```powershell
+npm run release:windows
 ```
 
-This will work when it works. Until then, clone it. The code is real.
+This creates:
+
+```text
+release/antti-stack-v0.1.0-windows.zip
+```
+
+Install from the extracted zip:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+The installer copies Antti Stack to `%LOCALAPPDATA%\AnttiStack`, adds command shims to the user PATH, and installs these commands:
+
+- `anttistack`
+- `antti`
+- `antti-mcp`
+- `antti-mcp-http`
+
+Node.js 22 LTS or newer is required.
+
+The `antti`, `antti-mcp`, and `antti-mcp-http` binaries are available after install.
 
 ---
 
 ## Usage
 
 ```bash
-antti "rewrite this LinkedIn post without sounding like a consulting brochure"
+antti --mode diagnose "Power BI definitions live in Excel before go-live."
 ```
 
-Output:
+For the local support commands:
 
-```text
-I was asked to describe our transformation journey.
-
-So far it appears to be three PowerPoints, one renamed SharePoint folder, and a Teams Team where hope goes to become searchable.
-
-Still. Progress has been claimed.
+```bash
+antti depress "going forward we will leverage synergies"
+antti plan "align stakeholders before go-live, SAP still uses final_final.xlsx"
+antti spec "SAP invoice mapping uses Excel, nobody owns it"
+antti dataplatform "we use Databricks and dbt on Snowflake"
 ```
 
 ---
 
 ## CLI Commands
 
-These are the same operations exposed via MCP. An agent calls them through the MCP tools. A human calls them here. Same functions, different surface.
-
-### `post`
-Generate LinkedIn posts that sound professional, but not infected.
-
-```bash
-antti post "Azure certification renewal"
-```
-
-```text
-Renewed another Azure certification.
-
-At this point the transcript is starting to look like someone tried to solve career development with Pokemon logic.
-
-This is probably fine.
-```
-
----
-
-### `comment`
-Write sharp, dry LinkedIn comments.
-
-```bash
-antti comment "full stack data developer debate"
-```
-
-```text
-<sarkasmi>
-Data engineers cannot talk to end users. This is why Data Analysts are inserted as a diplomatic layer.
-</sarkasmi>
-
-The real issue is not whether one person can understand the whole pipe.
-
-The issue is that switching between SQL, DAX, Python, Azure DevOps, business definitions, and PowerPoint every two weeks turns the brain into lightly governed porridge.
-```
-
----
-
-### `romcom`
-Turn master data into relationship drama.
-
-```bash
-antti romcom "supplier deduplication"
-```
-
-```text
-Supplier deduplication is a romantic comedy.
-
-Two records are clearly the same vendor, but one has a VAT number, the other has an address from 2017, and both are waiting for Business to realise they were meant to be together.
-
-Excel conditional formatting plays the quirky best friend.
-```
-
----
+The CLI is the human support surface. MCP is the agent surface. Some capabilities exist on both; some CLI commands exist only because humans like terminals and receipts.
 
 ### `archaeology`
 Reads text describing an ERP or data problem. Detects signals in that text — field codes, system names, dates, mapping references. Produces dry commentary about the likely organizational and historical shape of the problem.
@@ -269,7 +280,7 @@ It does not query any system. It does not look anything up. It reads what you gi
 Give it a field name, a symptom, or a situation. It will tell you what it sees.
 
 ```bash
-antti archaeology "ZZ_SUPP_REF_OLD2 field has wrong values since 2019"
+antti --mode archaeology "ZZ_SUPP_REF_OLD2 field has wrong values since 2019"
 ```
 
 ```text
@@ -324,13 +335,13 @@ There will be meetings.
 
 ---
 
-### `compress`
-Stateless text transformation. Text in, compressed text out. Nothing is stored.
+### `depress`
+Stateless agent-context compression. Text in, ceremony-stripped text out. Nothing is stored.
 
-Strips ceremony phrases, reports what was removed, checks whether meaning survived. Use it when you want the plain version of a text without writing anything to disk.
+Strips ceremony phrases, reports what was removed, checks whether meaning survived. Use it when you want lean prompt text, notes, tool output, or memory candidates without writing anything to disk.
 
 ```bash
-antti compress "We are thrilled to announce a transformational journey to unlock value going forward."
+antti depress "We are thrilled to announce a transformational journey to unlock value going forward."
 ```
 
 ```text
@@ -348,7 +359,7 @@ Verdict: 62% removed. The original had significant ceremony.
 ### `memory` and `memory-add`
 Persistent storage. Text in, compressed version written to `.antti/memory.jsonl`. Stays there. Retrievable later by search.
 
-`memory-add` compresses the text first (same as `compress`), then stores the result with a category and signal tags. The stored version is the ceremony-stripped version, not the original. Secrets are scrubbed before write.
+`memory-add` compresses the text first (same as `depress`), then stores the result with a category and signal tags. The stored version is the ceremony-stripped version, not the original. Secrets are scrubbed before write.
 
 `memory` searches or lists what has been stored.
 
@@ -363,7 +374,7 @@ antti memory "Excel mapping"
 antti memory --category decision_fossils
 ```
 
-**The difference from `compress`:** `compress` returns text to you. `memory-add` stores text for later. They both strip ceremony. One is a transformation, one is a write.
+**The difference from `depress`:** `depress` returns text to you. `memory-add` stores text for later. They both strip ceremony. One is a transformation, one is a write.
 
 ---
 
@@ -398,39 +409,31 @@ Proof-not-press: READY. All 7 tasks have testable checks.
 
 ```mermaid
 graph TB
-    subgraph "Agents — primary callers"
-        claude[Claude]
-        chatgpt[ChatGPT]
-        ghcp[GitHub Copilot]
-        local[Local model]
+    subgraph "Agent — does the reasoning"
+        claude[Claude / GHCP / Codex / local model]
+        skills[Skills · prompts/skills/ · 14 skill files]
+        agents[Subagents · prompts/agents/ · 4 specialized agents]
     end
-    subgraph "MCP interface — 14 tools"
-        stdio[antti-mcp · stdio]
-        http[antti-mcp-http · HTTP]
+    subgraph "MCP — I/O only · 4 tools"
+        meme_t[get_meme_templates · caption_meme]
+        mem[memory_search · memory_add]
     end
-    subgraph "Tools — shared functions"
-        compress[compress · codec · diagnose]
-        plan[plan · spec · memory]
-        meme[meme · emotional_weather · enterprise_gravity]
-    end
-    subgraph "CLI — local support"
-        cli[antti · same functions · human-operated]
+    subgraph "Setup"
+        setup[antti setup · detects agent CLIs · writes config · installs hooks]
+        hooks[Hooks · SessionStart · UserPromptSubmit]
     end
 
-    claude ~~~ stdio
-    chatgpt ~~~ http
-    ghcp ~~~ stdio
-    local ~~~ http
-    stdio ~~~ compress
-    http ~~~ compress
-    compress ~~~ plan
-    plan ~~~ meme
-    cli ~~~ compress
+    claude ~~~ skills
+    claude ~~~ agents
+    claude ~~~ meme_t
+    claude ~~~ mem
+    setup ~~~ hooks
+    hooks ~~~ claude
 ```
 
-The agent is the primary user. Claude, ChatGPT, GitHub Copilot, or a local model calls the MCP tools directly. The CLI runs the same functions locally — for testing, debugging, and operating without an agent in the loop.
+The agent does the reasoning. Skills are system prompts the agent loads. The MCP handles only I/O — fetching live data and executing external API calls. Hooks activate the skill at session start and enforce context discipline per turn.
 
-Each tool works independently. None requires the others. None requires a cloud service.
+None of the MCP tools call a model provider. None require a cloud service beyond imgflip for meme generation.
 
 ---
 
@@ -441,10 +444,10 @@ The stack is organized into independently useful layers. Each layer works alone.
 ```mermaid
 graph TB
     subgraph s1["01 — Primitive"]
-        A[compress · strip ceremony · report reduction]
+        A[depress · compress context · report reduction]
     end
     subgraph s2["02 — Analysis"]
-        B[diagnose · Banalizer · ERP Archaeologist · Emotional Weather · Enterprise Gravity]
+        B[diagnose · Banalizer · ERP Archaeologist · Emotional Weather · Enterprise Gravity · Data Platform Oracle]
     end
     subgraph s3["03 — Spec"]
         C[spec · OpenSpec · SHALL/MUST requirements from satirical signals]
@@ -456,7 +459,7 @@ graph TB
         E[memory · Agent-agnostic · Ceremony stripped before storage]
     end
     subgraph s6["06 — Adapters"]
-        F[CLI · MCP stdio · MCP HTTP · M365 · Foundry]
+        F[CLI · MCP stdio · MCP HTTP]
     end
 
     A ~~~ B ~~~ C ~~~ D ~~~ E ~~~ F
@@ -464,12 +467,12 @@ graph TB
 
 | Layer | Command | What it does |
 |-------|---------|--------------|
-| 01 Primitive | `antti compress` | Strips ceremony. Reports reduction, what was removed, meme suggestion at ≥20% reduction. |
-| 02 Analysis | `antti --mode diagnose` | Surfaces ERP signals, emotional weather hypotheses, enterprise gravity, meme anchor. |
+| 01 Primitive | `antti depress` | Strips ceremony. Reports reduction, what was removed, meme suggestion at ≥20% reduction. |
+| 02 Analysis | `antti --mode diagnose` / `antti dataplatform` | Surfaces ERP signals, emotional weather hypotheses, enterprise gravity, data platform diagnosis, meme anchor. |
 | 03 Spec | `antti spec` | Produces an OpenSpec Markdown document. Requirements derived from satirical signals. |
 | 04 Workflow | `antti plan` | Tasks with testable checks, acceptance criteria, proof-not-press gate. |
-| 05 Memory | `antti memory` / MCP `memory_add` | Persistent storage. Text in, compressed version written to `.antti/memory.jsonl`. Searchable later. Not the same as `compress` — `compress` returns text, `memory-add` stores it. |
-| 06 Adapters | MCP / M365 / Foundry | Same logic, 13 tools, different surface. |
+| 05 Memory | `antti memory` / MCP `memory_add` | Persistent storage. Text in, compressed version written to `.antti/memory.jsonl`. Searchable later. Not the same as `depress` — `depress` returns text, `memory-add` stores it. |
+| 06 Adapters | MCP stdio / MCP HTTP | Same core logic. Current MCP surface is 11 agentic tools. |
 
 ### One way to use multiple tools together
 
@@ -478,7 +481,7 @@ Each tool works on its own. If you want to use several, here is one example of h
 ```
 Start anywhere.
 
-[compress]    Give it corporate text. Get the plain meaning back.
+[depress]    Give it corporate text. Get the plain meaning back.
 [diagnose]    Give it workplace context. Get emotional weather and enterprise gravity signals.
 [spec]        Give it a situation. Get SHALL/MUST/SHOULD requirements derived from those signals.
 [plan]        Give it a goal. Get tasks with testable acceptance criteria.
@@ -486,7 +489,7 @@ Start anywhere.
 [meme]        Give it any input. Get an imgflip template that matches the absurdity level.
 ```
 
-None of these require the others. A user who only needs `compress` does not need `spec`. An agent that only needs `memory_add` does not need to understand the satire codec. Each tool has its own input and its own output.
+None of these require the others. A user who only needs `depress` does not need `spec`. An agent that only needs `memory_add` does not need to understand the satire codec. Each tool has its own input and its own output.
 
 Satire is the primary conveyor of truth. The tools make it usable.
 
@@ -494,75 +497,72 @@ Fewer ceremonies, same work.
 
 ---
 
-## MCP Client Setup
+## Setup
 
-Two transports. Same 14 tools. Pick the one that fits your client.
-
-### stdio — Claude Desktop, Claude Code, GitHub Copilot
-
-The server runs as a local subprocess. No port. No hosting. Build first:
+Run once after install:
 
 ```bash
-npm run build
+antti setup
 ```
 
-**Claude Desktop** (`~/Library/Application Support/Claude/claude_desktop_config.json` on Mac, `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
+This detects which agent CLIs you have installed (Claude Code, Codex, VS Code, Pi), writes the MCP server config into each agent's settings, injects the Antti skill into the user-level context file, installs the Claude Code hooks, and registers the statusline script.
+
+```bash
+# Also write per-repo rule files (AGENTS.md, .github/copilot-instructions.md)
+antti setup --init
+
+# Overwrite existing config
+antti setup --force
+```
+
+### Statusline
+
+After `antti setup`, Claude Code shows the current Antti mode in its status bar:
+
+| Mode | Badge |
+|------|-------|
+| Active | `⚡ Antti` |
+| Roast | `🔥 Antti:roast` |
+| Safe | `🛡 Antti:safe` |
+| Off | *(nothing)* |
+
+Switch modes mid-session:
+
+```
+/antti roast    sharper satirical take
+/antti safe     reduced bite, professional contexts
+/antti off      deactivate
+/antti on       reactivate
+```
+
+### Manual MCP config (if you prefer)
+
+**stdio transport** — Claude Code, GitHub Copilot, Codex:
 
 ```json
 {
   "mcpServers": {
     "antti-stack": {
-      "command": "node",
-      "args": ["/path/to/antti-stack/dist/mcp.js"]
+      "command": "antti-mcp",
+      "type": "stdio"
     }
   }
 }
 ```
 
-**GitHub Copilot in VS Code** (`.vscode/mcp.json` in your workspace):
-
-```json
-{
-  "servers": {
-    "antti-stack": {
-      "type": "stdio",
-      "command": "node",
-      "args": ["/path/to/antti-stack/dist/mcp.js"]
-    }
-  }
-}
-```
-
-**Claude Code** (add via `/mcp` command or `claude mcp add`):
+**HTTP transport** — ChatGPT, remote agents:
 
 ```bash
-claude mcp add antti-stack node /path/to/antti-stack/dist/mcp.js
-```
-
-### HTTP — ChatGPT, remote agents, any HTTP MCP client
-
-Start the HTTP server:
-
-```bash
-# Local only (default)
 node dist/mcp-http.js
-
-# Remote / team use
-MCP_HTTP_HOST=0.0.0.0 MCP_HTTP_PORT=3000 node dist/mcp-http.js
+# MCP endpoint: http://localhost:3000/mcp
 ```
-
-MCP endpoint: `http://localhost:3000/mcp`
-
-Configure your client with the endpoint URL. For ChatGPT or any agent that supports MCP over HTTP, point it at `http://your-host:3000/mcp`.
 
 **Environment variables:**
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `MCP_HTTP_PORT` | `3000` | Port to listen on |
-| `MCP_HTTP_HOST` | `127.0.0.1` | Bind address. Set `0.0.0.0` for remote access. |
-| `IMGFLIP_USERNAME` | — | imgflip API credential for `generate_meme` |
-| `IMGFLIP_PASSWORD` | — | imgflip API credential for `generate_meme` |
+| Variable | Purpose |
+|----------|---------|
+| `IMGFLIP_USERNAME` | imgflip credential for `caption_meme` |
+| `IMGFLIP_PASSWORD` | imgflip credential for `caption_meme` |
 
 ---
 
@@ -678,6 +678,46 @@ It ingests data from legacy systems, applies governance, enables self-service an
 Progress.
 ```
 
+---
+
+### `dataplatform`
+
+Detects data platform signals and returns the real decision driver, vendor promise, what will actually happen, technical notes, and billing surprise. Covers: Fabric, Databricks, Snowflake, Synapse, BigQuery, Redshift, dbt, Power BI, ADF, Kafka/streaming, Airflow, Palantir.
+
+```bash
+antti dataplatform "We chose Fabric because the CIO was promised it's included in M365. The data engineers want Databricks."
+```
+
+```text
+Data Platform Oracle
+Detected: Microsoft Fabric, Databricks
+
+--- Microsoft Fabric --- [medium confidence · detected: Microsoft Fabric]
+
+Why you chose it:
+  Your CIO was shown a slide that said 'unified analytics platform' and 'included in M365'. The slide was accurate. The implementation timeline was not.
+
+What they promised:
+  One platform for everything. Included in your existing Microsoft licensing.
+
+What will happen:
+  You will spend six months on capacity management, two months understanding why DirectLake mode has specific prerequisites, and one meeting explaining to the CIO that 'included' means licensed separately above a certain data volume.
+
+Technical notes:
+  - OneLake is the storage layer — Delta/Parquet underneath; all Fabric items read from the same lake
+  - Capacity is billed in CUs (Compute Units) — size your F-SKU before enabling large workloads
+  ...
+
+Billing:
+  The tenant-level capacity billing model means a single poorly-optimized report can consume your entire F-SKU allocation during month-end reporting.
+
+---
+
+Verdict: You have both Fabric and Databricks. This is either a deliberate polyglot strategy or two independent decisions made in the same quarter. The invoice will clarify which.
+
+Destination: The destination is Power BI. Or Excel. Regardless of the architecture chosen above it. This is not a prediction. It is physics.
+```
+
 ### Transformation
 
 ```text
@@ -732,7 +772,7 @@ Avoid:
 - [x] Detect corporate overhype
 - [x] Replace "unlock value" with actual work
 - [x] Satire Codec: reduce (remove ceremony) and induce (add controlled tone)
-- [x] `antti compress`: Token Austerity Office — strip ceremony, report reduction
+- [x] `antti depress`: Token Austerity Office — strip ceremony, report reduction
 - [x] Round-trip fixtures: corporate fog → plain meaning → partner-safe satire
 
 ### v0.3 - ERP and Emotional Stack
@@ -746,13 +786,11 @@ Avoid:
 - [x] Local JSONL memory: add, search, list, secret scrubbing
 - [x] `antti plan`: spec → tasks → acceptance criteria with proof-not-press gate
 - [ ] Memory categories: corporate fog, enterprise gravity, decision fossils
-- [ ] `antti compress` integrated into memory pipeline
+- [ ] `antti depress` integrated into memory pipeline
 
 ### v0.5 - Platform Adapters
-- [x] MCP stdio server: 14 tools — Claude Desktop, Claude Code, GitHub Copilot
-- [x] MCP HTTP server: same 14 tools — ChatGPT, remote agents, any HTTP MCP client
-- [x] M365 Copilot declarative agent scaffold and validation
-- [x] Foundry Agent Service scaffold and validation
+- [x] MCP stdio server: 11 agentic tools — Claude Desktop, Claude Code, GitHub Copilot
+- [x] MCP HTTP server: same 11 agentic tools — ChatGPT, remote agents, any HTTP MCP client
 - [ ] VS Code extension wiring
 
 ### v1.0 - Antti Stack Ecosystem
@@ -870,15 +908,15 @@ Clone the repository and run the CLI locally:
 ```bash
 npm install
 npm run dev -- --mode banalizer "We are thrilled to unlock data-driven value"
-npm run dev -- --mode romcom "supplier deduplication"
 npm run dev -- --mode archaeology "wrong supplier mapping"
+npm run dev -- --mode diagnose "Power BI definitions live in Excel before go-live"
 ```
 
 Build:
 
 ```bash
 npm run build
-node dist/cli.js --mode governance "decision rights"
+node dist/cli.js --mode diagnose "decision rights live in Teams"
 ```
 
 The stack is intentionally small at first.
@@ -887,32 +925,36 @@ This is only to make the future ecosystem expansion more embarrassing.
 ## Current CLI Surface
 
 ```bash
-# Text generation modes
-antti "rewrite this LinkedIn post"                         # default: post mode
-antti --mode diagnose "legacy Oracle invoice mapping"      # full diagnostic
-antti --mode banalizer "unlock data-driven value"          # corporate fog removal
-antti --mode governance "decision rights"                  # governance theatre output
-antti --mode archaeology "wrong supplier mapping"          # ERP signal analysis
-antti --mode meme "SAP invoice mapping uses Excel"         # mode-only, template text only
+# Setup — run once after install
+antti setup                          # detect agent CLIs, configure MCP + skill + hooks
+antti setup --init                   # also write per-repo rule files
+antti setup --force                  # overwrite existing config
+antti models                         # show current model configuration
 
-# Subcommands
-antti compress "going forward we will leverage synergies"  # Token Austerity Office
-antti spec "SAP invoice mapping uses Excel, nobody owns it"  # OpenSpec: satire → SHALL/MUST requirements
+# Meme
+antti meme --list                    # fetch live template list from imgflip.com
+antti meme --template 181913649 "doing the work" "getting aligned on the work"
+antti meme --template <id> <box1> [box2...] --no-url   # preview without API call
+
+# Memory
+antti memory "power bi"              # search memory
+antti memory --category enterprise_gravity
+antti memory-add --category decision_fossils "decision text"
+
+# Analysis (CLI, signal-based)
+antti depress "going forward we will leverage synergies"
 antti plan "align stakeholders before go-live, SAP still uses final_final.xlsx"
-antti meme "power bi semantic dispute" --no-url            # template + optional URL
-antti memory "power bi"                                    # search memory
-antti memory --category enterprise_gravity                 # filter by category
-antti memory-add --category decision_fossils "decision text"  # add manual note
-antti schema                                               # emit AgentResponse JSON schema
+antti spec "SAP invoice mapping uses Excel, nobody owns it"
+antti dataplatform "we use Databricks and dbt on Snowflake"
+antti casing myIdentifier --style snake_case
 
-# Useful flags for main command
-# --json         full structured AgentResponse for automation
-# --analyze      print banalizer + ERP + relations + governance before output
-# --safe         reduce sarcasm for professional contexts
-# --more-edge    increase absurdity without attacking people
-# --remember     store response in local memory (.antti/memory.jsonl)
+# Flags for main command
+antti --mode diagnose "legacy Oracle invoice mapping"
+antti --mode codec --direction reduce "unlock value"
+# --json       structured output
+# --safe       reduce sarcasm
+# --more-edge  increase absurdity
+# --remember   store response in local memory
 ```
 
-Memory categories: `corporate_fog` | `enterprise_gravity` | `emotional_weather` | `erp_archaeology` | `decision_fossils` | `satire_fixtures` | `reviewer_notes` | `general`
-
-Set `IMGFLIP_USERNAME` and `IMGFLIP_PASSWORD` env vars (see `.env.example`) to generate real meme URLs via `antti meme`.
+`IMGFLIP_USERNAME` and `IMGFLIP_PASSWORD` are saved to `~/.antti/imgflip.json` on first `antti meme` run. Future runs in any terminal use the saved credentials automatically.

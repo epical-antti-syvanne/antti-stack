@@ -1,6 +1,6 @@
-﻿# Agent Response Contract
+# Agent Response Contract
 
-This document describes the stable public shape of `AgentResponse` for CLI JSON, future MCP tools, Microsoft 365 Copilot agent adapters, Foundry agent adapters, and website demos.
+This document describes the stable public shape of `AgentResponse` for CLI JSON, MCP tools, and website demos.
 
 The contract is intentionally plain JSON. No ceremony is allowed unless it has a field name.
 
@@ -19,18 +19,16 @@ interface AgentResponse {
 
 Current modes:
 
-- `post`
-- `comment`
 - `banalizer`
-- `romcom`
 - `archaeology`
-- `governance`
-- `architecture`
 - `diagnose`
-- `ideas`
 - `desatirize`
 - `satirize`
 - `codec`
+- `depress`
+- `plan`
+- `meme`
+- `spec`
 
 ## Analysis Shape
 
@@ -43,6 +41,7 @@ interface AgentAnalysis {
   enterpriseGravity: EnterpriseGravityFinding[];
   governance: GovernanceArtifact;
   architecture: ArchitectureArtifact;
+  memeSuggestion: MemeTemplate;
 }
 ```
 

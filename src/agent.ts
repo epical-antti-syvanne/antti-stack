@@ -14,19 +14,13 @@ import { plan } from "./plan.js";
 import { formatSpec, generateSpec } from "./spec.js";
 
 export type AnttiMode =
-  | "post"
-  | "comment"
   | "banalizer"
-  | "romcom"
   | "archaeology"
-  | "governance"
-  | "architecture"
   | "diagnose"
-  | "ideas"
   | "desatirize"
   | "satirize"
   | "codec"
-  | "compress"
+  | "depress"
   | "plan"
   | "meme"
   | "spec";
@@ -89,19 +83,13 @@ export interface AgentResponse {
 }
 
 export const ANTTI_MODES: readonly AnttiMode[] = [
-  "post",
-  "comment",
   "banalizer",
-  "romcom",
   "archaeology",
-  "governance",
-  "architecture",
   "diagnose",
-  "ideas",
   "desatirize",
   "satirize",
   "codec",
-  "compress",
+  "depress",
   "plan",
   "meme",
   "spec"
@@ -280,7 +268,7 @@ function renderMode(mode: AnttiMode, input: string, intensity: AnttiIntensity, a
         `riskLabels: ${result.riskLabels.join(" | ")}`
       ].join("\n");
     }
-    case "compress": {
+    case "depress": {
       const result = compress(input);
       return `${result.compressed}\n\n${result.report}`;
     }
@@ -298,23 +286,12 @@ function renderMode(mode: AnttiMode, input: string, intensity: AnttiIntensity, a
     }
     case "banalizer":
       return banalize(input, intensity);
-    case "romcom":
-      return `${titleCase(input)} is a romantic comedy.\n\nTwo records are clearly meant to be together, but one has a VAT number, the other has vibes, and Business is waiting for IT to define love in the data model.\n\nExcel conditional formatting plays the quirky best friend.`;
     case "archaeology":
       return renderArchaeology(input, analysis);
-    case "governance":
-      return renderGovernance(analysis.governance);
-    case "architecture":
-      return `Architecture is what happens when everyone wants alignment but still needs their own local exception.\n\n${analysis.architecture.diagram}\n\n${safe ? "Reality will probably still request one legacy integration and a procurement process." : analysis.architecture.realityCheck}${edge ? "\n\nA steering group may be formed to admire the diagram before ignoring it." : ""}`;
     case "diagnose":
       return renderDiagnosis(analysis);
-    case "ideas":
-      return renderIdeas(input);
-    case "comment":
-      return `Yes. The interesting part is not whether ${plainObject(input)} is possible.\n\nThe interesting part is how quickly the operating model turns capable humans into calendar-dependent routing logic.\n\nThis is probably fine.`;
-    case "post":
     default:
-      return `I have been thinking about ${plainObject(input)}.\n\nThis was a mistake, but apparently also professional development.\n\nThe work itself is probably useful. The surrounding ceremony has already started forming a small governance ecosystem around it.\n\nAs one does.`;
+      return `Mode not recognized. The request has been noted and will be discussed in a future alignment session.`;
   }
 }
 
@@ -441,26 +418,25 @@ function renderArchaeology(input: string, _analysis: AgentAnalysis): string {
     if (phase.systemHint) {
       lines.push(`  (${phase.systemHint})`);
     }
+    if (phase.searchQueries.length > 0) {
+      lines.push("");
+      lines.push("  Search queries:");
+      for (const q of phase.searchQueries) {
+        lines.push(`    "${q}"`);
+      }
+    }
+    if (phase.askUser.length > 0) {
+      lines.push("");
+      lines.push("  Ask the user:");
+      for (const q of phase.askUser) {
+        lines.push(`    - ${q}`);
+      }
+    }
   }
 
   return lines.join("\n");
 }
 
-function renderGovernance(governance: GovernanceArtifact): string {
-  return [
-    "The governance model is now clear.",
-    "",
-    governance.decision,
-    "",
-    "Risks:",
-    ...governance.risks.map((risk) => `- ${risk}`),
-    "",
-    "Action points:",
-    ...governance.actionPoints.map((action) => `- ${action}`),
-    "",
-    "This is called transparency."
-  ].join("\n");
-}
 
 function renderDiagnosis(analysis: AgentAnalysis): string {
   const sections = [
@@ -491,16 +467,6 @@ function renderDiagnosis(analysis: AgentAnalysis): string {
   return `${body}\n\n${memeSection}`;
 }
 
-function renderIdeas(input: string): string {
-  const topic = plainObject(input);
-  return [
-    `1. ${titleCase(topic)} as institutional archaeology: the truth exists, but not where the process says it lives.`,
-    `2. ${titleCase(topic)} as a romantic comedy: two records belong together, but governance has concerns.`,
-    `3. ${titleCase(topic)} as architecture theatre: beautiful boxes meet a batch job from 2011.`,
-    `4. ${titleCase(topic)} as budget realism: please solve this with optimism and a CSV export.`,
-    `5. ${titleCase(topic)} as operating-model weather: mostly cloudy with a chance of steering group.`
-  ].join("\n");
-}
 
 function extractFieldLikeTokens(input: string): string[] {
   return unique(input.match(/\b[A-Z]{2,}[A-Z0-9_]{2,}\b/g) ?? []).filter((token) => token.length <= 32);

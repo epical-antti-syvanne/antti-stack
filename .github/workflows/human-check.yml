@@ -32,7 +32,7 @@ jobs:
               {
                 id: "kalsarikannit",
                 question: "Finnish survival-mode question: what word means drinking at home in your underwear with no intention of going out, also known as the spiritual opposite of a steering group?",
-                answers: ["kalsarikannit", "kalsarikännit"]
+                answers: ["kalsarikannit", "kalsarikännit", "kalsarikaennit"]
               },
               {
                 id: "lonkero",
@@ -42,7 +42,7 @@ jobs:
               {
                 id: "molkky",
                 question: "Finnish governance simulation question: what wooden throwing game involves numbered pins, mild strategy, and the same probability of consensus as a data ownership meeting?",
-                answers: ["molkky", "mölkky"]
+                answers: ["molkky", "mölkky", "moelkky"]
               },
               {
                 id: "avanto",

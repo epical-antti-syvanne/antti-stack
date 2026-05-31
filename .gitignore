@@ -42,6 +42,7 @@ Desktop.ini
 *.zip
 *.tar.gz
 *.tgz
+release/
 
 # Local agent and tool data
 .antti/
